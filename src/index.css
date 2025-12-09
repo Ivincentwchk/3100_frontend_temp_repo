@@ -25,6 +25,252 @@
   }
 }
 
+/* --- Custom app layout utilities --- */
+.app-shell {
+  min-height: 100vh;
+  background-color: #111111;
+  color: #f7f7f7;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* --- Auth Header --- */
+.auth-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: rgba(16, 16, 16, 0.95);
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  padding: 0 200px;
+  z-index: 100;
+}
+
+.auth-header-logo {
+  cursor: pointer;
+  height: 70px;
+}
+
+.auth-header-logo img {
+  height: 100%;
+  width: auto;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 120px 1.5rem 96px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  background: radial-gradient(circle at top, rgba(255, 244, 29, 0.08), transparent 45%) #111111;
+}
+
+.page-content {
+  width: min(640px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.page-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  color: #d6d6d6;
+  text-align: center;
+}
+
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-size: 0.95rem;
+  color: #a0a0a0;
+}
+
+.input {
+  height: 56px;
+  border-radius: 12px;
+  padding: 0 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  border-color: rgba(255, 244, 29, 0.7);
+}
+
+.helper-text {
+  font-size: 0.85rem;
+  color: #b7b7b7;
+}
+
+.status-text {
+  font-size: 0.8rem;
+}
+
+.status-text {
+  color: #e0e0e0;
+}
+
+.status-text.ok {
+  color: #9ae6b4;
+}
+
+.status-text.warn {
+  color: #f7a8a8;
+}
+
+/* --- Error Box --- */
+.error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(245, 101, 101, 0.1);
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  border-radius: 8px;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+  color: #f56565;
+  line-height: 1;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #f7a8a8;
+  font-size: 0.9rem;
+}
+
+.error-content .btn-ghost {
+  padding: 0;
+  height: auto;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 32px;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+}
+
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --- Password Strength Indicator --- */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.strength-bars .bar {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #333;
+  transition: background 0.2s ease;
+}
+
+.strength-bars .bar.active.weak {
+  background: #f56565;
+}
+
+.strength-bars .bar.active.medium {
+  background: #ecc94b;
+}
+
+.strength-bars .bar.active.strong {
+  background: #48bb78;
+}
+
+.strength-label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.strength-label.weak {
+  color: #f56565;
+}
+
+.strength-label.medium {
+  color: #ecc94b;
+}
+
+.strength-label.strong {
+  color: #48bb78;
+}
+
+.btn {
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  height: 60px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+  background: #fff41d;
+  color: #111111;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #fff41d;
+}
+
+.btn-ghost:hover {
+  opacity: 0.8;
+}
+
 @layer theme {
   :root, :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -154,7 +400,6 @@
   }
 
   img, svg, video, canvas, audio, iframe, embed, object {
-    vertical-align: middle;
     display: block;
   }
 

@@ -1,129 +1,270 @@
-import { useState } from "react";
-import svgPaths from "../../imports/svg-l6lxgqgatj";
-import { Navbar } from "../Navbar";
+import { useEffect, useMemo, useState } from "react";
 import { GridBackground } from "../GridBackground";
+import { useAuth } from "../../feature/auth/useAuth";
+import {
+  validatePassword,
+  isEmailValid,
+  isPasswordValid,
+  doPasswordsMatch,
+  EMAIL_REGEX,
+} from "../../feature/auth/validation";
 
 interface RegisterProps {
-  onRegister: (username: string, password: string) => void;
   onLogin: () => void;
-  onLogoClick: () => void;
 }
 
-export function Register({ onRegister, onLogin, onLogoClick }: RegisterProps) {
-  const [username, setUsername] = useState("");
+type AvailabilityState = "available" | "taken" | "checking" | null;
+
+const statusClass = (state: AvailabilityState) => {
+  if (state === "taken") return "status-text warn";
+  if (state === "available") return "status-text ok";
+  return "status-text";
+};
+
+export function Register({ onLogin }: RegisterProps) {
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [license, setLicense] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [userNameStatus, setUserNameStatus] = useState<AvailabilityState>(null);
+  const [emailStatus, setEmailStatus] = useState<AvailabilityState>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  const { handleRegister, error, checkUserAvailability } = useAuth();
+
+  const passwordValidation = useMemo(() => validatePassword(password), [password]);
+  const passwordsMatch = useMemo(() => doPasswordsMatch(password, confirmPassword), [password, confirmPassword]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!userName.trim()) {
+      setUserNameStatus(null);
+      return;
+    }
+    setUserNameStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkUserAvailability(userName.trim(), undefined);
+        if (!cancelled) {
+          setUserNameStatus(result.user_name_available ? "available" : "taken");
+        }
+      } catch {
+        if (!cancelled) setUserNameStatus(null);
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [userName, checkUserAvailability]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setEmailStatus(null);
+      setEmailError(null);
+      return;
+    }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setEmailStatus(null);
+      setEmailError("Invalid email format");
+      return;
+    }
+    setEmailError(null);
+    setEmailStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const result = await checkUserAvailability(undefined, trimmed);
+        if (!cancelled) {
+          setEmailStatus(result.email_available ? "available" : "taken");
+        }
+      } catch {
+        if (!cancelled) setEmailStatus(null);
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [email, checkUserAvailability]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) {
-      alert("Password must be at least 8 characters long");
+    if (!isEmailValid(email)) {
+      alert("Please enter a valid email address");
       return;
     }
-    onRegister(username, password);
+    if (!isPasswordValid(password)) {
+      alert("Password is too weak. Add uppercase, numbers, or symbols.");
+      return;
+    }
+    if (!doPasswordsMatch(password, confirmPassword)) {
+      alert("Passwords do not match");
+      return;
+    }
+    setSubmitting(true);
+    setSuccessMessage(null);
+    handleRegister(userName, email, password, license)
+      .then(() => {
+        setSuccessMessage(`Account created for ${userName}!`);
+        onLogin();
+      })
+      .finally(() => setSubmitting(false));
   };
 
   return (
-    <div className="bg-[#111111] relative size-full" data-name="register">
+    <div className="page-shell" data-name="register">
       <GridBackground />
-      <div className="relative size-full flex items-center justify-center">
-        <div className="content-stretch flex flex-col gap-[48px] items-start mt-[100px]">
-          <div className="content-stretch flex flex-col gap-[24px] items-center justify-center relative shrink-0">
-            <div className="content-stretch flex flex-col gap-[32px] items-start justify-center relative shrink-0">
-              <div className="flex flex-col font-['Poppins:Medium',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#aaaaaa] text-[32px] text-center text-nowrap">
-                <p className="leading-[normal] whitespace-pre">Sign up</p>
-              </div>
-              <form onSubmit={handleSubmit} className="content-stretch flex flex-col gap-[24px] items-start relative shrink-0">
-                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-[580px]" data-name="Email">
-                  <div className="h-[27px] relative shrink-0 w-full">
-                    <p className="absolute font-['Poppins:Regular',sans-serif] leading-[normal] left-0 not-italic text-[#999999] text-[16px] text-nowrap top-0 whitespace-pre">User name</p>
-                  </div>
-                  <div className="h-[56px] relative rounded-[12px] shrink-0 w-full" data-name="Text field">
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="h-[56px] w-full bg-transparent rounded-[12px] px-4 text-white outline-none"
-                      required
-                    />
-                    <div aria-hidden="true" className="absolute border border-[rgba(102,102,102,0.35)] border-solid inset-0 pointer-events-none rounded-[12px]" />
-                  </div>
-                </div>
-                <div className="content-stretch flex flex-col items-start relative shrink-0">
-                  <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-[580px]" data-name="Text field">
-                    <div className="h-[27px] relative shrink-0 w-full">
-                      <p className="absolute font-['Poppins:Regular',sans-serif] leading-[normal] left-0 not-italic text-[#999999] text-[16px] text-nowrap top-0 whitespace-pre">Password</p>
-                      <div className="absolute contents right-[8.86px] top-0" data-name="Password hide / see">
-                        <div className="absolute opacity-75 overflow-clip right-[57.86px] size-[24px] top-[3px]" data-name="icon">
-                          <div className="absolute inset-[16.71%_12.08%_16.64%_12.14%]">
-                            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 19 16">
-                              <g id="Group 1">
-                                <path d={svgPaths.p23cd5700} fill="var(--fill-0, #FFF41D)" id="Vector" />
-                                <path d={svgPaths.p25586b00} fill="var(--fill-0, #FFF41D)" id="Vector_2" />
-                              </g>
-                            </svg>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute font-['Poppins:Regular',sans-serif] leading-[normal] not-italic opacity-75 right-[8.86px] text-[#fff41d] text-[18px] text-nowrap text-right top-0 whitespace-pre hover:opacity-100 transition-opacity bg-transparent border-none cursor-pointer"
-                        >
-                          {showPassword ? "Show" : "Hide"}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="h-[56px] relative rounded-[12px] shrink-0 w-full" data-name="Text field">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-[56px] w-full bg-transparent rounded-[12px] px-4 text-white outline-none"
-                        required
-                      />
-                      <div aria-hidden="true" className="absolute border border-[rgba(153,153,153,0.35)] border-solid inset-0 pointer-events-none rounded-[12px]" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col font-['Poppins:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#666666] text-[14px] text-nowrap">
-                    <p className="leading-[normal] whitespace-pre">{`Use 8 or more characters with a mix of letters, numbers & symbols`}</p>
-                  </div>
-                </div>
-                <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0">
-                  <div className="box-border content-stretch flex gap-[10px] items-start px-0 py-[8px] relative shrink-0 w-[505px]" data-name="link text">
-                    <p className="font-['Poppins:Regular',sans-serif] leading-[normal] not-italic relative shrink-0 text-[#666666] text-[0px] text-[16px] text-nowrap whitespace-pre">
-                      <span className="text-[#aaaaaa]">{`By continuing, you agree to the `}</span>
-                      <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#bbbbbb] underline">Terms of use</span> <span className="text-[#aaaaaa]">and</span> <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#bbbbbb] underline">Privacy Policy.</span>
-                    </p>
-                  </div>
-                  <button type="submit" className="bg-[#fff41d] h-[64px] opacity-75 overflow-clip relative rounded-[12px] shrink-0 w-[580px] hover:opacity-100 transition-opacity cursor-pointer border-none" data-name="Button">
-                    <div className="absolute content-stretch flex gap-[8px] items-center justify-center left-1/2 top-[calc(50%-0.5px)] translate-x-[-50%] translate-y-[-50%]">
-                      <div className="flex flex-col font-['Poppins:Medium',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#111111] text-[22px] text-center text-nowrap">
-                        <p className="leading-[normal] whitespace-pre">Sign up</p>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div className="content-stretch flex flex-col gap-[24px] items-center justify-end relative shrink-0">
-              <div className="box-border content-stretch flex gap-[10px] items-start p-[2px] relative shrink-0" data-name="Have an account login">
-                <p className="font-['Poppins:Regular',sans-serif] leading-[normal] not-italic opacity-75 relative shrink-0 text-[#666666] text-[0px] text-[16px] text-nowrap whitespace-pre">
-                  <span className="text-white">Already have an account?</span>{" "}
-                  <button
-                    type="button"
-                    onClick={onLogin}
-                    className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid font-['Poppins:Medium',sans-serif] text-[#fff41d] underline hover:text-[#fff41d]/80 transition-colors bg-transparent border-none cursor-pointer"
-                  >
-                    Log in
-                  </button>
-                </p>
-              </div>
-            </div>
+      <div className="page-content">
+        <h1 className="page-title">Create your account</h1>
+        <p className="helper-text" style={{ textAlign: "center" }}>
+          Unlock the full experience by creating a developer profile.
+        </p>
+
+        {(error || successMessage) && (
+          <div className={`status-text ${error ? "warn" : "ok"}`}>{error ?? successMessage}</div>
+        )}
+
+        <form onSubmit={handleSubmit} className="form-card">
+          <div className="field">
+            <label htmlFor="register-username" className="field-label">
+              User name
+            </label>
+            <input
+              id="register-username"
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="input"
+              required
+            />
+            <p className={statusClass(userNameStatus)}>
+              {userNameStatus === "checking"
+                ? "Checking availability..."
+                : userNameStatus === "taken"
+                  ? "Username already taken"
+                  : userNameStatus === "available"
+                    ? "Username available"
+                    : "Choose a unique username"}
+            </p>
           </div>
-        </div>
-        <Navbar onLogoClick={onLogoClick} />
+
+          <div className="field">
+            <label htmlFor="register-email" className="field-label">
+              Email
+            </label>
+            <input
+              id="register-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+              required
+            />
+            <p className={emailError ? "status-text warn" : statusClass(emailStatus)}>
+              {emailError
+                ? emailError
+                : emailStatus === "checking"
+                  ? "Checking email..."
+                  : emailStatus === "taken"
+                    ? "Email already registered"
+                    : emailStatus === "available"
+                      ? "Email available"
+                      : "Use a valid email address"}
+            </p>
+          </div>
+
+          <div className="field">
+            <label htmlFor="register-password" className="field-label">
+              Password
+            </label>
+            <div className="field password-field">
+              <input
+                id="register-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input"
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-ghost password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+<div className="password-strength">
+              <div className="strength-bars">
+                <span className={`bar ${passwordValidation.strength ? "active" : ""} ${passwordValidation.strength}`} />
+                <span className={`bar ${passwordValidation.strength === "medium" || passwordValidation.strength === "strong" ? "active" : ""} ${passwordValidation.strength}`} />
+                <span className={`bar ${passwordValidation.strength === "strong" ? "active" : ""} ${passwordValidation.strength}`} />
+              </div>
+              <span className={`strength-label ${passwordValidation.strength || ""}`}>
+                {passwordValidation.strength === "weak" && "Weak"}
+                {passwordValidation.strength === "medium" && "Medium"}
+                {passwordValidation.strength === "strong" && "Strong"}
+                {!passwordValidation.strength && "Enter password"}
+              </span>
+            </div>
+            <p className="helper-text">Use at least 8 characters with uppercase, lowercase, numbers, and symbols.</p>
+          </div>
+
+          <div className="field">
+            <label htmlFor="register-confirm-password" className="field-label">
+              Confirm Password
+            </label>
+            <input
+              id="register-confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="input"
+              required
+            />
+            {confirmPassword && (
+              <p className={`status-text ${passwordsMatch ? "ok" : "warn"}`}>
+                {passwordsMatch ? "Passwords match" : "Passwords do not match"}
+              </p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="register-license" className="field-label">
+              License (optional)
+            </label>
+            <input
+              id="register-license"
+              type="text"
+              value={license}
+              onChange={(e) => setLicense(e.target.value)}
+              className="input"
+              placeholder="e.g. MIT, Apache-2.0"
+            />
+          </div>
+
+          <div className="helper-text">
+            By continuing, you agree to our Terms of Use and Privacy Policy.
+          </div>
+
+          <button type="submit" disabled={submitting} className="btn btn-primary">
+            {submitting ? "Creating account..." : "Sign up"}
+          </button>
+
+          <p className="helper-text" style={{ textAlign: "center" }}>
+            Already have an account?{" "}
+            <button type="button" className="btn btn-ghost" onClick={onLogin}>
+              Log in
+            </button>
+          </p>
+        </form>
       </div>
-      <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.2)] border-solid inset-0 pointer-events-none" />
     </div>
   );
 }
