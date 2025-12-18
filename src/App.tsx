@@ -5,6 +5,7 @@ import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { Header } from "./components/Header";
 import Dashboard from "./components/Dashboard";
+import { EditProfileModal } from "./components/EditProfileModal";
 import { ResetPassword } from "./components/pages/ResetPassword";
 import { SubjectsPage } from "./components/pages/POC-Page/SubjectsPage";
 import { GridBackground } from "./components/GridBackground";
@@ -15,6 +16,7 @@ export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [dashboardView, setDashboardView] = useState<"home" | "subjects">("home");
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleLogoClick = () => {
@@ -78,7 +80,20 @@ export default function App() {
     return (
       <div className="app-shell relative">
         <GridBackground />
-        <Header onLogoClick={handleLogoClick} />
+        <Header
+          onLogoClick={handleLogoClick}
+          user={user}
+          onProfileClick={() => setIsEditProfileOpen(true)}
+        />
+        {isEditProfileOpen && (
+          <EditProfileModal
+            user={user}
+            onClose={() => setIsEditProfileOpen(false)}
+            onUpdated={async () => {
+              await refreshUser();
+            }}
+          />
+        )}
         {dashboardView === "subjects" ? (
           <SubjectsPage
             onBack={() => {
@@ -91,6 +106,7 @@ export default function App() {
             user={user}
             onLogout={handleLogoutAndReturnHome}
             onOpenSubjects={() => setDashboardView("subjects")}
+            onEditProfile={() => setIsEditProfileOpen(true)}
           />
         )}
       </div>

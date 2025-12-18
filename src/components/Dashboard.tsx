@@ -1,12 +1,15 @@
 import type { AuthUser } from "../feature/auth/api";
 
+import { ProfileAvatar } from "./ProfileAvatar";
+
 interface DashboardProps {
   user: AuthUser;
   onLogout: () => void;
   onOpenSubjects?: () => void;
+  onEditProfile?: () => void;
 }
 
-function Dashboard({ user, onLogout, onOpenSubjects }: DashboardProps) {
+function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile }: DashboardProps) {
   const totalScore = user.total_score ?? user.profile.score;
 
   return (
@@ -19,6 +22,11 @@ function Dashboard({ user, onLogout, onOpenSubjects }: DashboardProps) {
         
         <div className="form-card">
           <h2 className="field-label" style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>User Information</h2>
+
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem" }}>
+            <ProfileAvatar user={user} size={92} onClick={onEditProfile} />
+          </div>
+
           <div className="field">
             <label className="field-label">User Name</label>
             <div className="input">{user.user_name}</div>
@@ -57,7 +65,7 @@ function Dashboard({ user, onLogout, onOpenSubjects }: DashboardProps) {
         <div className="form-card" style={{ marginTop: "2rem" }}>
           <h2 className="field-label" style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>Quick Actions</h2>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <button type="button" className="btn btn-secondary" onClick={() => alert('Profile settings coming soon!')}>
+            <button type="button" className="btn btn-secondary" onClick={onEditProfile}>
               Edit Profile
             </button>
             <button type="button" className="btn btn-secondary" onClick={() => alert('View statistics coming soon!')}>

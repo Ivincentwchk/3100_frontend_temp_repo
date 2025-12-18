@@ -10,6 +10,9 @@ export interface AuthUser {
     rank: number;
     login_streak_days: number;
     last_login_date?: string;
+    has_profile_pic?: boolean;
+    profile_pic_mime?: string | null;
+    profile_pic_url?: string;
   };
   total_score?: number;
   completed_course_scores?: Array<{ CourseID: number; CourseScore: number }>;
@@ -82,4 +85,25 @@ export const checkAvailability = async (params: { user_name?: string; email?: st
     params,
   });
   return response.data;
+};
+
+export const getMyProfilePicBlob = async (): Promise<Blob> => {
+  const response = await apiClient.get<Blob>("/me/profile-pic/", {
+    responseType: "blob",
+  });
+  return response.data;
+};
+
+export const uploadMyProfilePic = async (file: File) => {
+  const form = new FormData();
+  form.append("file", file);
+  return apiClient.put<{ detail: string; profile_pic_mime?: string }>("/me/profile-pic/", form, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const deleteMyProfilePic = async () => {
+  return apiClient.delete<{ detail: string }>("/me/profile-pic/");
 };
