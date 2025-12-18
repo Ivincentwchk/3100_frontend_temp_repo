@@ -261,14 +261,21 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
               </div>
             )}
           </div>
-          {isLoadingQuestionIds && <p className="helper-text">Loading questions...</p>}
+          {isLoadingQuestionIds && (
+            <div aria-hidden="true" style={{ display: "grid", gap: "0.5rem" }}>
+              <div className="skeleton skeleton-text" style={{ width: "55%" }} />
+              <div className="skeleton skeleton-text sm" style={{ width: "35%" }} />
+            </div>
+          )}
         </div>
 
         {activeQuestionId !== null && (
           <div className="poc-panel" style={{ minHeight: "420px" }}>
             {(isLoadingQuestionDetail || !activeQuestionDetail) && (
               <>
-                <p className="helper-text">Loading...</p>
+                <div aria-hidden="true" style={{ display: "grid", gap: "0.5rem" }}>
+                  <div className="skeleton skeleton-text" style={{ width: "40%" }} />
+                </div>
                 <div className="input" style={{ height: "auto", padding: "1rem", minHeight: "84px" }}>
                   <div className="skeleton skeleton-text lg" style={{ width: "90%" }} />
                   <div style={{ height: "0.6rem" }} />

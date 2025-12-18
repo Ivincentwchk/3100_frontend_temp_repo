@@ -19,7 +19,18 @@ export function QuestionsList({ courseId, onSelect }: QuestionsListProps) {
   });
 
   if (isLoading) {
-    return <p className="helper-text">Loading questions...</p>;
+    return (
+      <div className="poc-card-list" aria-hidden="true">
+        {[0, 1, 2, 3].map((idx) => (
+          <div key={idx} className="poc-card-button" style={{ cursor: "default" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div className="skeleton skeleton-text" style={{ width: `${50 - idx * 6}%` }} />
+              <div className="skeleton skeleton-text sm" style={{ width: `${30 - idx * 4}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (isError) {

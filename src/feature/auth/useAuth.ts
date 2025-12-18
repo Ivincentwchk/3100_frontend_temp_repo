@@ -66,8 +66,6 @@ export const useAuth = (): UseAuthResult => {
     
     const validateToken = async () => {
       try {
-        console.log('Validating token:', token.substring(0, 20) + '...');
-        
         // Add timeout to prevent infinite waiting
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Token validation timeout')), 10000); // 10 second timeout
@@ -77,12 +75,9 @@ export const useAuth = (): UseAuthResult => {
           getMe(token) as Promise<AuthUser>, 
           timeoutPromise as Promise<never>
         ]);
-        console.log('Token validation successful, user:', userData.user_name);
-        
         setUser(userData);
         setIsAuthenticated(true);
       } catch (err) {
-        console.log('Token validation failed:', err);
         // Token invalid, clear it
         clearStoredToken();
         setToken(null);

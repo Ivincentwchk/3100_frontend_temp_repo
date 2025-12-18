@@ -12,7 +12,7 @@ import { GridBackground } from "./components/GridBackground";
 type Page = "start" | "login" | "register";
 
 export default function App() {
-  const { user, isAuthenticated, loading, handleLogout, handleLogin, error, token, refreshUser } = useAuth();
+  const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [dashboardView, setDashboardView] = useState<"home" | "subjects">("home");
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
@@ -49,7 +49,15 @@ export default function App() {
         <Header onLogoClick={handleLogoClick} />
         <div className="page-shell">
           <div className="page-content" style={{ alignItems: "center" }}>
-            <p>Loading...</p>
+            <div className="form-card" style={{ width: "min(520px, 100%)" }}>
+              <div className="skeleton skeleton-text lg" style={{ width: "55%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "85%" }} />
+              <div className="skeleton" style={{ height: "180px", width: "100%" }} />
+              <div style={{ display: "grid", gap: "0.75rem", width: "100%" }}>
+                <div className="skeleton" style={{ height: "44px", width: "100%", borderRadius: "999px" }} />
+                <div className="skeleton" style={{ height: "44px", width: "100%", borderRadius: "999px" }} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -81,7 +89,6 @@ export default function App() {
         ) : (
           <Dashboard
             user={user}
-            token={token}
             onLogout={handleLogoutAndReturnHome}
             onOpenSubjects={() => setDashboardView("subjects")}
           />

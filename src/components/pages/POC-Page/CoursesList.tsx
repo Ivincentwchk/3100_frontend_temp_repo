@@ -20,7 +20,21 @@ export function CoursesList({ subjectId, onSelect, completedScoresByCourseId }: 
   });
 
   if (isLoading) {
-    return <p className="helper-text">Loading courses...</p>;
+    return (
+      <div className="poc-card-list" aria-hidden="true">
+        {[0, 1, 2].map((idx) => (
+          <div key={idx} className="poc-card-button" style={{ cursor: "default" }}>
+            <div className="poc-row">
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
+                <div className="skeleton skeleton-text lg" style={{ width: `${75 - idx * 8}%` }} />
+                <div className="skeleton skeleton-text" style={{ width: `${45 - idx * 6}%` }} />
+              </div>
+              <div className="skeleton skeleton-text" style={{ width: "64px" }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (isError) {

@@ -2,13 +2,11 @@ import type { AuthUser } from "../feature/auth/api";
 
 interface DashboardProps {
   user: AuthUser;
-  token: string | null;
   onLogout: () => void;
   onOpenSubjects?: () => void;
 }
 
-function Dashboard({ user, token, onLogout, onOpenSubjects }: DashboardProps) {
-  const maskedToken = token ? `${token.substring(0, 20)}...` : 'No token';
+function Dashboard({ user, onLogout, onOpenSubjects }: DashboardProps) {
   const totalScore = user.total_score ?? user.profile.score;
 
   return (
@@ -16,7 +14,7 @@ function Dashboard({ user, token, onLogout, onOpenSubjects }: DashboardProps) {
       <div className="page-content">
         <h1 className="page-title">Welcome back, {user.user_name}!</h1>
         <p className="helper-text" style={{ textAlign: "center", marginBottom: "2rem" }}>
-          You are successfully logged in with your authentication token.
+          You are successfully logged in.
         </p>
         
         <div className="form-card">
@@ -49,11 +47,6 @@ function Dashboard({ user, token, onLogout, onOpenSubjects }: DashboardProps) {
           <div className="field">
             <label className="field-label">Login Streak</label>
             <div className="input">{user.profile.login_streak_days} days</div>
-          </div>
-          
-          <div className="field">
-            <label className="field-label">Authentication Token</label>
-            <div className="input" style={{ fontFamily: "monospace", fontSize: "0.875rem" }}>{maskedToken}</div>
           </div>
           
           <button type="button" onClick={onLogout} className="btn btn-primary" style={{ marginTop: "1rem" }}>

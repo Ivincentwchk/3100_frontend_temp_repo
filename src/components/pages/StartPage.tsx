@@ -9,7 +9,7 @@ export function StartPage({ onGetStarted, onLogin }: StartPageProps) {
   return (
     <div className="bg-[#111111] relative size-full" data-name="start page">
       <div className="relative size-full flex items-center justify-center">
-        <div className="flex flex-col items-center gap-8 mt-[100px]">
+        <div className="flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-12">
             <div className="w-[371px] h-[313px]" data-name="cards 1">
               <img alt="Learning cards" className="w-full h-full object-cover pointer-events-none" src={imgCards1} />

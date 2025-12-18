@@ -18,7 +18,18 @@ export function SubjectsList({ onSelect }: SubjectsListProps) {
   });
 
   if (isLoading) {
-    return <p className="helper-text">Loading subjects...</p>;
+    return (
+      <div className="poc-card-list" aria-hidden="true">
+        {[0, 1, 2].map((idx) => (
+          <div key={idx} className="poc-card-button" style={{ cursor: "default" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div className="skeleton skeleton-text lg" style={{ width: `${80 - idx * 10}%` }} />
+              <div className="skeleton skeleton-text" style={{ width: `${60 - idx * 8}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (isError) {
