@@ -89,6 +89,27 @@ export interface AvailabilityResponse {
   email_available?: boolean;
 }
 
+interface PasswordResetPayload {
+  email: string;
+  reset_base_url?: string;
+}
+
+export const requestPasswordReset = async (email: string, resetBaseUrl?: string) => {
+  const payload: PasswordResetPayload = {
+    email,
+    reset_base_url: resetBaseUrl,
+  };
+  return authClient.post<{ detail: string }>("/password-reset/", payload);
+};
+
+export const confirmPasswordReset = async (token: string, email: string, newPassword: string) => {
+  return authClient.post<{ detail: string }>("/password-reset/confirm/", {
+    token,
+    email,
+    new_password: newPassword,
+  });
+};
+
 export const checkAvailability = async (params: { user_name?: string; email?: string }): Promise<AvailabilityResponse> => {
   const response = await authClient.get<AvailabilityResponse>("/availability/", {
     params,

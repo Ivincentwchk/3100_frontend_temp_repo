@@ -5,20 +5,17 @@ import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { AuthHeader } from "./components/AuthHeader";
 import Dashboard from "./components/Dashboard";
+import { ResetPassword } from "./components/pages/ResetPassword";
 
 type Page = "start" | "login" | "register";
 
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, token } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
+  const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleGetStarted = () => {
     setCurrentPage("register");
-  };
-
-  const handleForgotPassword = () => {
-    alert("Password reset link would be sent to your email");
-    // Add forgot password logic here
   };
 
   const navigateToLogin = () => {
@@ -51,6 +48,15 @@ export default function App() {
     );
   }
 
+  if (!loading && isResetRoute) {
+    return (
+      <div className="app-shell">
+        <AuthHeader onLogoClick={navigateToStart} />
+        <ResetPassword />
+      </div>
+    );
+  }
+
   if (isAuthenticated && user) {
     return (
       <div className="app-shell">
@@ -74,7 +80,6 @@ export default function App() {
         {currentPage === "login" && (
           <Login
             onSignUp={navigateToRegister}
-            onForgotPassword={handleForgotPassword}
             handleLogin={handleLogin}
             authError={error}
           />

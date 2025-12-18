@@ -1,17 +1,15 @@
 import { useMemo, useState } from "react";
 import { GridBackground } from "../GridBackground";
-import type { LoginResponse } from "../../feature/auth/api";
+import { requestPasswordReset, type LoginResponse } from "../../feature/auth/api";
 
 interface LoginProps {
   onSignUp: () => void;
-  onForgotPassword: () => void;
   handleLogin: (user_name: string, password: string, rememberMe?: boolean) => Promise<LoginResponse>;
   authError?: string | null;
 }
 
 export function Login({
   onSignUp,
-  onForgotPassword,
   handleLogin,
   authError,
 }: LoginProps) {
@@ -21,8 +19,13 @@ export function Login({
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetFeedback, setResetFeedback] = useState<string | null>(null);
+  const [resetSubmitting, setResetSubmitting] = useState(false);
 
   const passwordToggleLabel = useMemo(() => (showPassword ? "Hide password" : "Show password"), [showPassword]);
+  const resetBaseUrl = import.meta.env.VITE_RESET_PASSWORD_URL as string | undefined;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +36,24 @@ export function Login({
         setSuccessMessage(`Welcome back, ${userName}!`);
       })
       .finally(() => setSubmitting(false));
+  };
+
+  const handleForgotPasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) {
+      setResetFeedback("Please enter your email address.");
+      return;
+    }
+    setResetSubmitting(true);
+    setResetFeedback("Sending reset instructions...");
+    requestPasswordReset(resetEmail.trim(), resetBaseUrl)
+      .then((response) => {
+        setResetFeedback(response.data.detail ?? "If an account exists for that email, you'll receive instructions shortly.");
+      })
+      .catch(() => {
+        setResetFeedback("If an account exists for that email, you'll receive instructions shortly.");
+      })
+      .finally(() => setResetSubmitting(false));
   };
 
   return (
@@ -102,7 +123,7 @@ export function Login({
               />
               Remember me
             </label>
-            <button type="button" className="btn btn-ghost" onClick={onForgotPassword}>
+            <button type="button" className="btn btn-ghost" onClick={() => setShowResetForm((prev) => !prev)}>
               Forgot password?
             </button>
           </div>
@@ -111,6 +132,46 @@ export function Login({
             {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
+
+        {showResetForm && (
+          <div className="modal-backdrop">
+            <div className="modal-card">
+              <form onSubmit={handleForgotPasswordSubmit}>
+                <div className="modal-header">
+                  <h2 className="field-label" style={{ margin: 0 }}>Reset password</h2>
+                  <button type="button" className="btn btn-ghost" onClick={() => setShowResetForm(false)}>
+                    ✕
+                  </button>
+                </div>
+                <div className="field">
+                  <label htmlFor="reset-email" className="field-label">
+                    Email address
+                  </label>
+                  <input
+                    id="reset-email"
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="input"
+                    autoFocus
+                    required
+                  />
+                </div>
+                {resetFeedback && (
+                  <div className="status-text" style={{ marginBottom: "0.75rem" }}>{resetFeedback}</div>
+                )}
+                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                  <button type="button" className="btn btn-ghost" onClick={() => setShowResetForm(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-secondary" disabled={resetSubmitting}>
+                    {resetSubmitting ? "Sending..." : "Send reset link"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         <p className="helper-text" style={{ textAlign: "center" }}>
           Need an account?{" "}
