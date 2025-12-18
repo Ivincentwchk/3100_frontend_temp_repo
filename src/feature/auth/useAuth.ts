@@ -11,6 +11,7 @@ interface UseAuthResult {
   handleRegister: (user_name: string, email: string, password: string, License?: string) => Promise<RegisterResponse>;
   handleLogin: (user_name: string, password: string, rememberMe?: boolean) => Promise<LoginResponse>;
   handleLogout: () => void;
+  refreshUser: () => Promise<AuthUser | null>;
   checkUserAvailability: (user_name?: string, email?: string) => Promise<AvailabilityResponse>;
 }
 
@@ -97,6 +98,26 @@ export const useAuth = (): UseAuthResult => {
     return checkAvailability({ user_name, email });
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const storedToken = getStoredToken();
+    if (!storedToken) {
+      return null;
+    }
+
+    try {
+      const userData = await getMe(storedToken);
+      setUser(userData);
+      setIsAuthenticated(true);
+      return userData;
+    } catch {
+      clearStoredToken();
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+      return null;
+    }
+  }, []);
+
   const handleRegister = async (user_name: string, email: string, password: string, License?: string): Promise<RegisterResponse> => {
     try {
       setError(null);
@@ -117,11 +138,11 @@ export const useAuth = (): UseAuthResult => {
       // Clear both storages first
       clearStoredToken();
       
-      if (rememberMe) {
-        // Persist across browser sessions
-        localStorage.setItem(TOKEN_STORAGE_KEY, data.access);
-      } else {
-        // Only persist for current session (cleared when browser closes)
+      // Persist across tabs by always writing to localStorage.
+      // If rememberMe is false we also mirror it into sessionStorage, but localStorage
+      // ensures a new tab can still restore the session.
+      localStorage.setItem(TOKEN_STORAGE_KEY, data.access);
+      if (!rememberMe) {
         sessionStorage.setItem(TOKEN_STORAGE_KEY, data.access);
       }
 
@@ -153,6 +174,7 @@ export const useAuth = (): UseAuthResult => {
     handleRegister,
     handleLogin,
     handleLogout,
+    refreshUser,
     checkUserAvailability,
   };
 };

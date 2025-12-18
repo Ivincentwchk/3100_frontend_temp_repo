@@ -1,18 +1,18 @@
 import type { AuthUser } from "../feature/auth/api";
-import { GridBackground } from "./GridBackground";
 
 interface DashboardProps {
   user: AuthUser;
   token: string | null;
   onLogout: () => void;
+  onOpenSubjects?: () => void;
 }
 
-function Dashboard({ user, token, onLogout }: DashboardProps) {
+function Dashboard({ user, token, onLogout, onOpenSubjects }: DashboardProps) {
   const maskedToken = token ? `${token.substring(0, 20)}...` : 'No token';
+  const totalScore = user.total_score ?? user.profile.score;
 
   return (
     <div className="page-shell" data-name="dashboard">
-      <GridBackground />
       <div className="page-content">
         <h1 className="page-title">Welcome back, {user.user_name}!</h1>
         <p className="helper-text" style={{ textAlign: "center", marginBottom: "2rem" }}>
@@ -37,8 +37,8 @@ function Dashboard({ user, token, onLogout }: DashboardProps) {
           </div>
           
           <div className="field">
-            <label className="field-label">Score</label>
-            <div className="input">{user.profile.score}</div>
+            <label className="field-label">Total Score</label>
+            <div className="input">{totalScore}</div>
           </div>
           
           <div className="field">
@@ -73,6 +73,11 @@ function Dashboard({ user, token, onLogout }: DashboardProps) {
             <button type="button" className="btn btn-secondary" onClick={() => alert('Settings coming soon!')}>
               Settings
             </button>
+            {onOpenSubjects && (
+              <button type="button" className="btn btn-secondary" onClick={onOpenSubjects}>
+                POC: Subjects
+              </button>
+            )}
           </div>
         </div>
       </div>
