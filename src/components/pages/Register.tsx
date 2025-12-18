@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { GridBackground } from "../GridBackground";
 import { useAuth } from "../../feature/auth/useAuth";
 import {
   validatePassword,
@@ -119,7 +118,6 @@ export function Register({ onLogin }: RegisterProps) {
 
   return (
     <div className="page-shell" data-name="register">
-      <GridBackground />
       <div className="page-content">
         <h1 className="page-title">Create your account</h1>
         <p className="helper-text" style={{ textAlign: "center" }}>

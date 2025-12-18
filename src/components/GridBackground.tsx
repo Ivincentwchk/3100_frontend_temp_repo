@@ -1,6 +1,6 @@
 export function GridBackground() {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div className="grid-background pointer-events-none" aria-hidden="true">
       <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">

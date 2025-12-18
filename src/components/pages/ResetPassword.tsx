@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { GridBackground } from "../GridBackground";
 import { confirmPasswordReset } from "../../feature/auth/api";
 
 const getQueryParam = (key: string): string | null => {
@@ -56,7 +55,6 @@ export function ResetPassword() {
 
   return (
     <div className="page-shell" data-name="reset-password">
-      <GridBackground />
       <div className="page-content">
         <h1 className="page-title">Reset your password</h1>
         <p className="helper-text" style={{ textAlign: "center" }}>

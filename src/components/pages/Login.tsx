@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { GridBackground } from "../GridBackground";
 import { requestPasswordReset, type LoginResponse } from "../../feature/auth/api";
 
 interface LoginProps {
@@ -58,7 +57,6 @@ export function Login({
 
   return (
     <div className="page-shell" data-name="login">
-      <GridBackground />
       <div className="page-content">
         <h1 className="page-title">Log in</h1>
 

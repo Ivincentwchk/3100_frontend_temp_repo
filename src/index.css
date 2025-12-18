@@ -22,6 +22,18 @@
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
     }
+
+ html,
+ body,
+ #root {
+   height: 100%;
+   background: #111111;
+ }
+
+ body {
+   margin: 0;
+   overscroll-behavior: none;
+ }
   }
 }
 
@@ -33,8 +45,8 @@
   font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* --- Auth Header --- */
-.auth-header {
+/* --- Header --- */
+.header {
   position: fixed;
   top: 0;
   left: 0;
@@ -48,15 +60,22 @@
   z-index: 100;
 }
 
-.auth-header-logo {
+.header-logo {
   cursor: pointer;
   height: 70px;
 }
 
-.auth-header-logo img {
+.header-logo img {
   height: 100%;
   width: auto;
 }
+
+ .grid-background {
+   position: fixed;
+   inset: 0;
+   overflow: hidden;
+   z-index: 0;
+ }
 
 .page-shell {
   min-height: 100vh;
@@ -64,7 +83,16 @@
   display: flex;
   justify-content: center;
   position: relative;
-  background: radial-gradient(circle at top, rgba(255, 244, 29, 0.08), transparent 45%) #111111;
+  background: transparent;
+}
+
+ .page-shell::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   background: radial-gradient(circle at top, rgba(255, 244, 29, 0.08), transparent 45%);
+   pointer-events: none;
+   z-index: 0;
 }
 
 .page-content {
@@ -87,6 +115,186 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.poc-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.poc-breadcrumbs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #b7b7b7;
+}
+
+.poc-breadcrumbs strong {
+  color: #f7f7f7;
+  font-weight: 600;
+}
+
+.poc-progress-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.poc-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 244, 29, 0.95), rgba(255, 244, 29, 0.55));
+  transition: width 200ms ease;
+}
+
+.poc-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #e8e8e8;
+  letter-spacing: 0.2px;
+}
+
+.poc-card-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.poc-card-button {
+  width: 100%;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(16, 16, 16, 0.35);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.poc-card-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 244, 29, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.poc-card-button:active {
+  transform: translateY(0px);
+}
+
+ .poc-card-button.is-selected {
+   border-color: rgba(255, 244, 29, 0.75);
+   background: rgba(255, 244, 29, 0.10);
+ }
+
+.poc-card-title {
+  font-weight: 700;
+  color: #f2f2f2;
+}
+
+.poc-card-subtitle {
+  font-size: 0.85rem;
+  color: #b7b7b7;
+}
+
+.poc-panel {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+ .skeleton {
+   position: relative;
+   overflow: hidden;
+   border-radius: 12px;
+   background: rgba(255, 255, 255, 0.08);
+ }
+
+ .skeleton::after {
+   content: "";
+   position: absolute;
+   inset: 0;
+   transform: translateX(-100%);
+   background: linear-gradient(
+     90deg,
+     rgba(255, 255, 255, 0),
+     rgba(255, 255, 255, 0.12),
+     rgba(255, 255, 255, 0)
+   );
+   animation: skeleton-shimmer 1100ms ease-in-out infinite;
+ }
+
+ .skeleton-text {
+   height: 14px;
+   border-radius: 999px;
+ }
+
+ .skeleton-text.sm {
+   height: 12px;
+ }
+
+ .skeleton-text.lg {
+   height: 18px;
+ }
+
+ @keyframes skeleton-shimmer {
+   0% {
+     transform: translateX(-100%);
+   }
+   100% {
+     transform: translateX(100%);
+   }
+ }
+
+ .poc-layout {
+   display: grid;
+   grid-template-columns: 220px 1fr;
+   gap: 1rem;
+   align-items: start;
+ }
+
+ .poc-sidebar {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+ }
+
+ @media (max-width: 720px) {
+   .poc-layout {
+     grid-template-columns: 1fr;
+   }
+ }
+
+.poc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.poc-link {
+  background: transparent;
+  border: none;
+  color: #fff41d;
+  cursor: pointer;
+  padding: 0;
+  height: auto;
+  font-weight: 600;
+}
+
+.poc-link:hover {
+  opacity: 0.8;
 }
 
 .field {

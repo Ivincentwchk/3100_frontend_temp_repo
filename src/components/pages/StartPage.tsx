@@ -1,17 +1,13 @@
 import imgCards1 from "figma:asset/66c581580b07ce11ba4bb026b6c21cd875a941fe.png";
-import { Navbar } from "../Navbar";
-import { GridBackground } from "../GridBackground";
 
 interface StartPageProps {
   onGetStarted: () => void;
   onLogin: () => void;
-  onLogoClick: () => void;
 }
 
-export function StartPage({ onGetStarted, onLogin, onLogoClick }: StartPageProps) {
+export function StartPage({ onGetStarted, onLogin }: StartPageProps) {
   return (
     <div className="bg-[#111111] relative size-full" data-name="start page">
-      <GridBackground />
       <div className="relative size-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-8 mt-[100px]">
           <div className="flex flex-col items-center gap-12">
@@ -44,7 +40,6 @@ export function StartPage({ onGetStarted, onLogin, onLogoClick }: StartPageProps
             </button>
           </div>
         </div>
-        <Navbar onLogoClick={onLogoClick} />
       </div>
       <div aria-hidden="true" className="absolute border border-black border-solid inset-0 pointer-events-none" />
     </div>
