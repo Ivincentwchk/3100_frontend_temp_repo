@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useAuth } from "./feature/auth/useAuth";
 import { StartPage } from "./components/pages/StartPage";
 import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
-import { Header } from "./components/Header";
+import { Header, type NavPage } from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import { EditProfileModal } from "./components/EditProfileModal";
 import { ResetPassword } from "./components/pages/ResetPassword";
@@ -16,16 +16,30 @@ type Page = "start" | "login" | "register";
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
-  const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements">("home");
+  const [activePage, setActivePage] = useState<NavPage>("home");
+  const [dashboardView, setDashboardView] = useState<"user_info" | "subjects" | "achievements">("user_info");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleLogoClick = () => {
     if (isAuthenticated) {
-      setDashboardView("home");
+      setActivePage("home");
+      setDashboardView("user_info");
       return;
     }
     setCurrentPage("start");
+  };
+
+  const handleNavigate = (page: NavPage) => {
+    setActivePage(page);
+    if (page === "home") {
+      setDashboardView("user_info");
+    } else if (page === "explore") {
+      setDashboardView("subjects");
+    } else if (page === "profile") {
+      setDashboardView("user_info");
+    }
+    // ranking and export can be added when those pages exist
   };
 
   const handleGetStarted = () => {
@@ -79,12 +93,14 @@ export default function App() {
 
   if (isAuthenticated && user) {
     return (
-      <div className="app-shell relative">
+      <div className="app-shell relative" style={{ "--app-header-height": "70px" } as CSSProperties}>
         <GridBackground />
         <Header
           onLogoClick={handleLogoClick}
           user={user}
-          onProfileClick={() => setIsEditProfileOpen(true)}
+          onProfileClick={() => handleNavigate("profile")}
+          activePage={activePage}
+          onNavigate={handleNavigate}
         />
         {isEditProfileOpen && (
           <EditProfileModal
@@ -99,11 +115,11 @@ export default function App() {
           <SubjectsPage
             onBack={() => {
               refreshUser();
-              setDashboardView("home");
+              setDashboardView("user_info");
             }}
           />
         ) : dashboardView === "achievements" ? (
-          <AchievementsPage onBack={() => setDashboardView("home")} />
+          <AchievementsPage onBack={() => setDashboardView("user_info")} />
         ) : (
           <Dashboard
             user={user}

@@ -10,22 +10,22 @@ interface DashboardProps {
   onOpenAchievements?: () => void;
 }
 
-function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchievements }: DashboardProps) {
+function UserInfo({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchievements }: DashboardProps) {
   const totalScore = user.total_score ?? user.profile.score;
 
   return (
-    <div className="page-shell" data-name="dashboard">
+    <div className="page-shell" data-name="user info">
       <div className="page-content">
-        <h1 className="page-title">Welcome back, {user.user_name}!</h1>
+        <h1 className="page-title">User Info</h1>
         <p className="helper-text" style={{ textAlign: "center", marginBottom: "2rem" }}>
-          You are successfully logged in.
+          {user.user_name}
         </p>
         
         <div className="form-card">
           <h2 className="field-label" style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>User Information</h2>
 
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem" }}>
-            <ProfileAvatar user={user} size={92} onClick={onEditProfile} />
+            <ProfileAvatar user={user} size={92} onClick={onEditProfile} showEditOnHover />
           </div>
 
           <div className="field">
@@ -92,4 +92,4 @@ function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchiev
   );
 }
 
-export default Dashboard;
+export default UserInfo;
