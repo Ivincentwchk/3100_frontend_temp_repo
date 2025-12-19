@@ -8,6 +8,7 @@ import Dashboard from "./components/Dashboard";
 import { EditProfileModal } from "./components/EditProfileModal";
 import { ResetPassword } from "./components/pages/ResetPassword";
 import { SubjectsPage } from "./components/pages/POC-Page/SubjectsPage";
+import { AchievementsPage } from "./components/pages/AchievementsPage";
 import { GridBackground } from "./components/GridBackground";
 
 type Page = "start" | "login" | "register";
@@ -15,7 +16,7 @@ type Page = "start" | "login" | "register";
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
-  const [dashboardView, setDashboardView] = useState<"home" | "subjects">("home");
+  const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
@@ -101,12 +102,15 @@ export default function App() {
               setDashboardView("home");
             }}
           />
+        ) : dashboardView === "achievements" ? (
+          <AchievementsPage onBack={() => setDashboardView("home")} />
         ) : (
           <Dashboard
             user={user}
             onLogout={handleLogoutAndReturnHome}
             onOpenSubjects={() => setDashboardView("subjects")}
             onEditProfile={() => setIsEditProfileOpen(true)}
+            onOpenAchievements={() => setDashboardView("achievements")}
           />
         )}
       </div>

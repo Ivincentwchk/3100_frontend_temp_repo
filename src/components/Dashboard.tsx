@@ -7,9 +7,10 @@ interface DashboardProps {
   onLogout: () => void;
   onOpenSubjects?: () => void;
   onEditProfile?: () => void;
+  onOpenAchievements?: () => void;
 }
 
-function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile }: DashboardProps) {
+function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchievements }: DashboardProps) {
   const totalScore = user.total_score ?? user.profile.score;
 
   return (
@@ -68,6 +69,11 @@ function Dashboard({ user, onLogout, onOpenSubjects, onEditProfile }: DashboardP
             <button type="button" className="btn btn-secondary" onClick={onEditProfile}>
               Edit Profile
             </button>
+            {onOpenAchievements && (
+              <button type="button" className="btn btn-secondary" onClick={onOpenAchievements}>
+                Achievements
+              </button>
+            )}
             <button type="button" className="btn btn-secondary" onClick={() => alert('View statistics coming soon!')}>
               View Statistics
             </button>
