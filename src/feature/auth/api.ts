@@ -13,12 +13,18 @@ export interface AuthUser {
     has_profile_pic?: boolean;
     profile_pic_mime?: string | null;
     profile_pic_url?: string;
-    recent_course_id?: number | null;
-    recent_course_title?: string | null;
-    recent_course_updated_at?: string | null;
+    bookmarked_subject_id?: number | null;
+    bookmarked_subject_name?: string | null;
+    bookmarked_subject_updated_at?: string | null;
   };
   total_score?: number;
   completed_course_scores?: Array<{ CourseID: number; CourseScore: number }>;
+  recent_bookmarked_subjects?: Array<{
+    subject_id: number;
+    subject_name: string;
+    bookmarked_at: string;
+    subject_icon_svg_url?: string | null;
+  }>;
 }
 
 export interface RegisterResponse {
@@ -111,13 +117,18 @@ export const deleteMyProfilePic = async () => {
   return apiClient.delete<{ detail: string }>("/me/profile-pic/");
 };
 
-export const setRecentCourse = async (courseId: number) => {
+export const setBookmarkedSubject = async (subjectId: number) => {
   const response = await apiClient.post<{
-    recent_course_id: number;
-    recent_course_title: string;
-    recent_course_updated_at: string;
-  }>("/me/recent-course/", {
-    course_id: courseId,
+    bookmarked_subject_id: number;
+    bookmarked_subject_name: string;
+    bookmarked_subject_updated_at: string;
+  }>("/me/bookmarked-subject/", {
+    subject_id: subjectId,
   });
+  return response.data;
+};
+
+export const removeBookmarkedSubject = async (subjectId: number) => {
+  const response = await apiClient.delete<{ detail: string }>(`/me/bookmarked-subject/${subjectId}/`);
   return response.data;
 };

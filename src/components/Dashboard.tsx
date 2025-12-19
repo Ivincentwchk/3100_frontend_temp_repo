@@ -1,6 +1,8 @@
 import type { AuthUser } from "../feature/auth/api";
 
 import { ProfileAvatar } from "./ProfileAvatar";
+import { confirmPasswordReset } from "../feature/auth/api";
+import { useMemo, useState } from "react";
 
 interface DashboardProps {
   user: AuthUser;
@@ -11,7 +13,49 @@ interface DashboardProps {
 }
 
 function UserInfo({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchievements }: DashboardProps) {
-  const totalScore = user.total_score ?? user.profile.score;
+  const emailPrefill = useMemo(() => user.email ?? "", [user.email]);
+  const [token, setToken] = useState("");
+  const [email, setEmail] = useState(emailPrefill);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<"ok" | "warn">("ok");
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token.trim() || !email.trim()) {
+      setStatusTone("warn");
+      setStatusMessage("Missing token or email.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setStatusTone("warn");
+      setStatusMessage("Password must be at least 8 characters long.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setStatusTone("warn");
+      setStatusMessage("Passwords do not match.");
+      return;
+    }
+
+    setSubmitting(true);
+    setStatusTone("ok");
+    setStatusMessage("Updating password...");
+    try {
+      await confirmPasswordReset(token, email, newPassword);
+      setStatusTone("ok");
+      setStatusMessage("Password updated. You can now log in with the new password.");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      setStatusTone("warn");
+      setStatusMessage("Unable to update password. Check token/email and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="page-shell" data-name="user info">
@@ -43,24 +87,58 @@ function UserInfo({ user, onLogout, onOpenSubjects, onEditProfile, onOpenAchieve
             <div className="input">{user.License || 'None'}</div>
           </div>
           
-          <div className="field">
-            <label className="field-label">Total Score</label>
-            <div className="input">{totalScore}</div>
-          </div>
-          
-          <div className="field">
-            <label className="field-label">Rank</label>
-            <div className="input">{user.profile.rank}</div>
-          </div>
-          
-          <div className="field">
-            <label className="field-label">Login Streak</label>
-            <div className="input">{user.profile.login_streak_days} days</div>
-          </div>
-          
           <button type="button" onClick={onLogout} className="btn btn-primary" style={{ marginTop: "1rem" }}>
             Logout
           </button>
+        </div>
+
+        <div className="form-card" style={{ marginTop: "2rem" }}>
+          <h2 className="field-label" style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>Change Password</h2>
+          <form onSubmit={handleChangePassword} style={{ display: "grid", gap: "0.75rem" }}>
+            <div className="field">
+              <label className="field-label">Reset token</label>
+              <input
+                className="input"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Paste token from email"
+                disabled={submitting}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label">Email</label>
+              <input
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label">New password</label>
+              <input
+                className="input"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                disabled={submitting}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label">Confirm password</label>
+              <input
+                className="input"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={submitting}
+              />
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              Update Password
+            </button>
+            {statusMessage && <div className={`status-text ${statusTone}`}>{statusMessage}</div>}
+          </form>
         </div>
         
         <div className="form-card" style={{ marginTop: "2rem" }}>

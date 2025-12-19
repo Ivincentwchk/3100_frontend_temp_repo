@@ -12,15 +12,17 @@ import {
   type QuestionDetail,
   type Subject,
 } from "../../../feature/learning/api";
-import { setRecentCourse } from "../../../feature/auth/api";
+import { setBookmarkedSubject } from "../../../feature/auth/api";
 import { CoursesList } from "./CoursesList";
 import { SubjectsList } from "./SubjectsList";
 
 interface SubjectsPageProps {
   onBack?: () => void;
+  user?: import("../../../feature/auth/api").AuthUser;
+  onBookmarked?: () => void;
 }
 
-export function SubjectsPage({ onBack }: SubjectsPageProps) {
+export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseListItem | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -68,8 +70,11 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
     staleTime: 60_000,
   });
 
-  const setRecentCourseMutation = useMutation({
-    mutationFn: (courseIdToSet: number) => setRecentCourse(courseIdToSet),
+  const setBookmarkedSubjectMutation = useMutation({
+    mutationFn: (subjectIdToSet: number) => setBookmarkedSubject(subjectIdToSet),
+    onSuccess: () => {
+      onBookmarked?.();
+    },
   });
 
   const completedScoresByCourseId = useMemo(() => {
@@ -150,15 +155,19 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
     setSelectedSubject(subject);
     setSelectedCourse(null);
     resetAttemptState();
+
+    if (subject.SubjectID) {
+      setBookmarkedSubjectMutation.mutate(subject.SubjectID);
+    }
   };
 
   const handleSelectCourse = (course: CourseListItem) => {
     setSelectedCourse(course);
     resetAttemptState();
 
-    // Track "recent course" on backend for later use (e.g., Home page).
-    if (course.CourseID) {
-      setRecentCourseMutation.mutate(course.CourseID);
+    // Track bookmarked subject on backend for later use (e.g., Home page).
+    if (selectedSubject?.SubjectID) {
+      setBookmarkedSubjectMutation.mutate(selectedSubject.SubjectID);
     }
   };
 
@@ -169,8 +178,8 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
           <div className="poc-row">
             <div className="poc-section-title">Practice</div>
             {onBack && (
-              <button type="button" className="poc-link" onClick={onBack}>
-                Exit
+              <button type="button" className="poc-back" onClick={backToDashboard}>
+                Back to Dashboard
               </button>
             )}
           </div>
@@ -191,6 +200,8 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
             Step {step} of 3
           </p>
         </div>
+
+
 
         {selectedSubject && (
           <div className="poc-panel">
@@ -222,7 +233,6 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
             </button>
           </div>
         )}
-
       </div>
     );
   };
@@ -234,7 +244,7 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
           <div className="poc-section-title">Choose a subject</div>
           <div className="helper-text">Pick what you want to practice today.</div>
         </div>
-        <SubjectsList onSelect={handleSelectSubject} />
+        <SubjectsList onSelect={handleSelectSubject} user={user} onBookmarked={onBookmarked} />
       </>
     );
   };

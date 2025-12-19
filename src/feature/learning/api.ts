@@ -4,6 +4,7 @@ export interface Subject {
   SubjectID: number;
   SubjectName: string;
   SubjectDescription: string;
+  icon_svg_url?: string | null;
 }
 
 export interface CourseListItem {

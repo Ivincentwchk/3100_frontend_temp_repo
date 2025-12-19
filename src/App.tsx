@@ -4,6 +4,7 @@ import { StartPage } from "./components/pages/StartPage";
 import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { Header, type NavPage } from "./components/Header";
+import { HomePage } from "./components/pages/HomePage";
 import Dashboard from "./components/Dashboard";
 import { EditProfileModal } from "./components/EditProfileModal";
 import { ResetPassword } from "./components/pages/ResetPassword";
@@ -17,14 +18,14 @@ export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [activePage, setActivePage] = useState<NavPage>("home");
-  const [dashboardView, setDashboardView] = useState<"user_info" | "subjects" | "achievements">("user_info");
+  const [dashboardView, setDashboardView] = useState<"home" | "user_info" | "subjects" | "achievements">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleLogoClick = () => {
     if (isAuthenticated) {
       setActivePage("home");
-      setDashboardView("user_info");
+      setDashboardView("home");
       return;
     }
     setCurrentPage("start");
@@ -33,7 +34,7 @@ export default function App() {
   const handleNavigate = (page: NavPage) => {
     setActivePage(page);
     if (page === "home") {
-      setDashboardView("user_info");
+      setDashboardView("home");
     } else if (page === "explore") {
       setDashboardView("subjects");
     } else if (page === "profile") {
@@ -111,12 +112,20 @@ export default function App() {
             }}
           />
         )}
-        {dashboardView === "subjects" ? (
+        {dashboardView === "home" ? (
+          <HomePage
+            user={user}
+            onExplore={() => handleNavigate("explore")}
+            onContinueRecentCourse={() => handleNavigate("explore")}
+          />
+        ) : dashboardView === "subjects" ? (
           <SubjectsPage
             onBack={() => {
               refreshUser();
               setDashboardView("user_info");
             }}
+            user={user}
+            onBookmarked={refreshUser}
           />
         ) : dashboardView === "achievements" ? (
           <AchievementsPage onBack={() => setDashboardView("user_info")} />
