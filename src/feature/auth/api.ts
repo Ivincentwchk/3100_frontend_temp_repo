@@ -13,6 +13,9 @@ export interface AuthUser {
     has_profile_pic?: boolean;
     profile_pic_mime?: string | null;
     profile_pic_url?: string;
+    recent_course_id?: number | null;
+    recent_course_title?: string | null;
+    recent_course_updated_at?: string | null;
   };
   total_score?: number;
   completed_course_scores?: Array<{ CourseID: number; CourseScore: number }>;
@@ -106,4 +109,15 @@ export const uploadMyProfilePic = async (file: File) => {
 
 export const deleteMyProfilePic = async () => {
   return apiClient.delete<{ detail: string }>("/me/profile-pic/");
+};
+
+export const setRecentCourse = async (courseId: number) => {
+  const response = await apiClient.post<{
+    recent_course_id: number;
+    recent_course_title: string;
+    recent_course_updated_at: string;
+  }>("/me/recent-course/", {
+    course_id: courseId,
+  });
+  return response.data;
 };

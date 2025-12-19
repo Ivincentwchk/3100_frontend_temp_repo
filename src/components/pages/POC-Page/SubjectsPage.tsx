@@ -12,6 +12,7 @@ import {
   type QuestionDetail,
   type Subject,
 } from "../../../feature/learning/api";
+import { setRecentCourse } from "../../../feature/auth/api";
 import { CoursesList } from "./CoursesList";
 import { SubjectsList } from "./SubjectsList";
 
@@ -65,6 +66,10 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
     queryKey: ["completedCourseScores"],
     queryFn: getCompletedCourseScores,
     staleTime: 60_000,
+  });
+
+  const setRecentCourseMutation = useMutation({
+    mutationFn: (courseIdToSet: number) => setRecentCourse(courseIdToSet),
   });
 
   const completedScoresByCourseId = useMemo(() => {
@@ -150,6 +155,11 @@ export function SubjectsPage({ onBack }: SubjectsPageProps) {
   const handleSelectCourse = (course: CourseListItem) => {
     setSelectedCourse(course);
     resetAttemptState();
+
+    // Track "recent course" on backend for later use (e.g., Home page).
+    if (course.CourseID) {
+      setRecentCourseMutation.mutate(course.CourseID);
+    }
   };
 
   const renderSidebar = () => {
