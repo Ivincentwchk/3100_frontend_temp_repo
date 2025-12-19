@@ -6,6 +6,7 @@ import { Register } from "./components/pages/Register";
 import { AuthHeader } from "./components/AuthHeader";
 import Dashboard from "./components/Dashboard";
 import { ResetPassword } from "./components/pages/ResetPassword";
+import Cert from "./components/Cert";
 
 type Page = "start" | "login" | "register";
 
@@ -89,6 +90,9 @@ export default function App() {
             onLogin={navigateToLogin}
           />
         )}
+        <div>
+          <Cert />
+        </div>
       </>
     </div>
   );
