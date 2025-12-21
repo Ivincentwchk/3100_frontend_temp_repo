@@ -1,0 +1,108 @@
+
+.start-page {
+  min-height: calc(100vh - var(--app-header-height));
+  /* background: #111111; */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  isolation: isolate;
+}
+
+.start-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.start-page__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 3.5rem);
+}
+
+.start-page__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.start-page__card {
+  width: min(371px, 80vw);
+  aspect-ratio: 371 / 313;
+  border-radius: 18px;
+  overflow: hidden;
+  /* box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45); */
+}
+
+.start-page__card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.start-page__heading {
+  text-align: center;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 6vw, 36px);
+  color: #ffffff;
+  line-height: 1.1;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.start-page__heading p {
+  margin: 0;
+}
+
+.start-page__actions {
+  width: min(400px, 90vw);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.start-page__btn {
+  height: 64px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  font-size: clamp(18px, 4vw, 22px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.start-page__btn-primary {
+  background: #fff41d;
+  color: #111111;
+  box-shadow: 0 4px 4px rgba(221, 221, 221, 0.25);
+  opacity: 0.85;
+}
+
+.start-page__btn-primary:hover {
+  opacity: 1;
+}
+
+.start-page__btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #666666;
+  box-shadow: 0 4px 4px rgba(221, 221, 221, 0.25);
+  opacity: 0.85;
+}
+
+.start-page__btn-secondary:hover {
+  opacity: 1;
+}

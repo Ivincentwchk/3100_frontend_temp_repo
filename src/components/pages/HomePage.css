@@ -1,0 +1,256 @@
+
+/* --- Home (v2-inspired) --- */
+.home-shell {
+  width: 100%;
+}
+
+.home-main {
+  padding: 30px 1.5rem 96px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 2rem;
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.home-left,
+.home-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.home-section-title {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.04em;
+}
+
+.home-welcome-card {
+  background-color: #1c1c1c;
+  border: 1px solid #666666;
+  border-radius: 12px;
+  padding: 2rem;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-welcome-title {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 44px;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+
+.home-welcome-name {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  color: #fff41d;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+
+.home-welcome-subtitle {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.home-stat-card {
+  background-color: #1c1c1c;
+  border: 1px solid #666666;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-stat-label {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.home-stat-value {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: #fff41d;
+}
+
+.home-recent-card {
+  background-color: rgba(16, 16, 16, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.home-recent-title {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.home-recent-subtitle {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  color: #b7b7b7;
+}
+
+.home-recent-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.home-btn {
+  height: 44px;
+  border-radius: 12px;
+  padding: 0 1.25rem;
+  border: none;
+  cursor: pointer;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.home-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.home-btn-primary {
+  background: #fff41d;
+  color: #111111;
+}
+
+.home-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.home-btn-secondary {
+  background: #1c1c1c;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid #000000;
+}
+
+.home-btn-secondary:hover {
+  background: #2c2c2c;
+}
+
+.home-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.home-explore-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-explore-text {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Welcome + stat cards (v2) */
+.home-welcome-card-v2 {
+  background-color: #1c1c1c;
+  border: 1px solid #666666;
+  border-radius: 12px;
+  padding: 2rem;
+  height: 265px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-welcome-title-v2 {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 50px;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.home-welcome-subtitle-v2 {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.home-stat-card-v2 {
+  background-color: #1c1c1c;
+  border: 1px solid #666666;
+  border-radius: 12px;
+  padding-inline: 2rem;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-stat-label-v2 {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.home-stat-value-v2 {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  color: #fff41d;
+}
+
+.home-explore-button {
+  background-color: #1c1c1c;
+  border-radius: 12px;
+  border: 1px solid #000000;
+  height: 40px;
+  padding-inline: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.home-explore-button:hover {
+  background-color: #2c2c2c;
+}
+
+.home-explore-button-label {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #ffffff;
+  opacity: 0.75;
+}
+
+@media (max-width: 960px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}

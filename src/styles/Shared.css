@@ -1,0 +1,476 @@
+
+/* --- Shared: Forms --- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-size: 0.95rem;
+  color: #a0a0a0;
+}
+
+.input {
+  height: 56px;
+  border-radius: 12px;
+  padding: 0 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+/* .input:focus {
+  border-color: rgba(255, 244, 29, 0.7);
+} */
+
+.helper-text {
+  font-size: 0.85rem;
+  color: #b7b7b7;
+}
+
+.status-text {
+  font-size: 0.8rem;
+  color: #e0e0e0;
+}
+
+.status-text.ok {
+  color: #9ae6b4;
+}
+
+.status-text.warn {
+  color: #f7a8a8;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 32px;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.password-toggle-icon {
+  font-size: 0.95rem;
+}
+
+.password-toggle-icon img {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  object-fit: contain;
+}
+
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --- Password Strength Indicator --- */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.strength-bars .bar {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #333;
+  transition: background 0.2s ease;
+}
+
+.strength-bars .bar.active.weak {
+  background: #f56565;
+}
+
+.strength-bars .bar.active.medium {
+  background: #ecc94b;
+}
+
+.strength-bars .bar.active.strong {
+  background: #48bb78;
+}
+
+.strength-label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.strength-label.weak {
+  color: #f56565;
+}
+
+.strength-label.medium {
+  color: #ecc94b;
+}
+
+.strength-label.strong {
+  color: #48bb78;
+}
+
+/* --- Shared: Buttons --- */
+.btn {
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  height: 60px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+  background: #fff41d;
+  color: #111111;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  color: #111111;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #fff41d;
+}
+
+.btn-ghost:hover {
+  opacity: 0.8;
+}
+
+/* --- Shared: Cards --- */
+.form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Shared: Error Box --- */
+.error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(245, 101, 101, 0.1);
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  border-radius: 8px;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+  color: #f56565;
+  line-height: 1;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #f7a8a8;
+  font-size: 0.9rem;
+}
+
+.error-content .btn-ghost {
+  padding: 0;
+  height: auto;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+/* --- Shared: Modals --- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: #1c1c1c;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  width: min(420px, 100%);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* --- Shared: Skeleton --- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0)
+  );
+  animation: skeleton-shimmer 1100ms ease-in-out infinite;
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 999px;
+}
+
+.skeleton-text.sm {
+  height: 12px;
+}
+
+.skeleton-text.lg {
+  height: 18px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* --- Shared: Labels (v2) --- */
+.home-label {
+  height: 84px;
+  width: 240px;
+  box-shadow: 4px 4px 10px 0 rgba(102, 102, 102, 0.25);
+}
+
+.home-label-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.home-label-top {
+  position: absolute;
+  background: #c3bb1a;
+  left: 4.17%;
+  right: 0;
+  top: 0;
+  bottom: 64.29%;
+}
+
+.home-label-body {
+  position: absolute;
+  background: #111111;
+  left: 7.92%;
+  right: 0;
+  top: 35.71%;
+  bottom: 0;
+}
+
+.home-label-variant {
+  position: absolute;
+  inset: 46.43% 38.33% 10.71% 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: white;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.home-label-pill {
+  position: absolute;
+  background: #101010;
+  inset: 11.9% 62.08% 64.29% 7.92%;
+}
+
+.home-label-text {
+  position: absolute;
+  inset: 14.29% 64.17% 64.29% 10.42%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: white;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.home-label-strip {
+  position: absolute;
+  left: 0;
+  right: 95.83%;
+  top: 0;
+  bottom: 64.29%;
+  background: linear-gradient(to bottom, #53baff, #99327d);
+}
+
+/* --- Shared: Course Card (v2) --- */
+.home-course-card {
+  position: relative;
+  width: 400px;
+  height: 250px;
+}
+
+.home-course-card-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.97);
+  border: 1px solid #666666;
+}
+
+.home-course-colorbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 250px;
+  width: 93px;
+  display: flex;
+}
+
+.home-course-colorbar-yellow {
+  width: 79px;
+  height: 250px;
+  background: #c3bb1a;
+  border: 1px solid #a7a7a7;
+  border-right: none;
+}
+
+.home-course-colorbar-gradient {
+  width: 14px;
+  height: 250px;
+  border: 1px solid #a7a7a7;
+  background: linear-gradient(to bottom, #fff41d 0%, #9dff74 30%, #53baff 60%, #c038ff 80%, #ff1dca 100%);
+}
+
+.home-course-colorbar-label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  bottom: 12px;
+  width: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.home-course-colorbar-label-text {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.75);
+  transform: rotate(-90deg);
+  white-space: nowrap;
+}
+
+.icon-white {
+  filter: grayscale(1) brightness(1.2) contrast(2) invert(1);
+}
+
+.home-course-icon {
+  position: absolute;
+  left: 122px;
+  top: 30px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.home-course-icon-mark {
+  font-size: 30px;
+  font-weight: 700;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+.home-course-title {
+  position: absolute;
+  left: 122px;
+  top: 100px;
+  width: 240px;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+}
+
+.home-course-continue {
+  position: absolute;
+  left: 122px;
+  top: 169px;
+  width: 246px;
+  height: 45px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #666666;
+  color: white;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  transition: background-color 0.15s ease;
+}
+
+.home-course-continue:hover {
+  background: #777777;
+}
+
+.home-course-continue:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

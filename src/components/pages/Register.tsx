@@ -12,6 +12,9 @@ interface RegisterProps {
   onLogin: () => void;
 }
 
+const SHOW_PASSWORD_ICON = "https://cdn-icons-png.flaticon.com/512/159/159604.png";
+const HIDE_PASSWORD_ICON = "https://cdn-icons-png.flaticon.com/512/565/565655.png";
+
 type AvailabilityState = "available" | "taken" | "checking" | null;
 
 const statusClass = (state: AvailabilityState) => {
@@ -192,13 +195,17 @@ export function Register({ onLogin }: RegisterProps) {
               />
               <button
                 type="button"
-                className="btn btn-ghost password-toggle"
+                className="btn btn-secondary password-toggle"
                 onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? "Hide" : "Show"}
+                <span className="password-toggle-icon" aria-hidden="true">
+                  <img src={showPassword ? HIDE_PASSWORD_ICON : SHOW_PASSWORD_ICON} alt="" />
+                </span>
+                <span>{showPassword ? "Hide" : "Show"}</span>
               </button>
             </div>
-<div className="password-strength">
+            <div className="password-strength">
               <div className="strength-bars">
                 <span className={`bar ${passwordValidation.strength ? "active" : ""} ${passwordValidation.strength}`} />
                 <span className={`bar ${passwordValidation.strength === "medium" || passwordValidation.strength === "strong" ? "active" : ""} ${passwordValidation.strength}`} />

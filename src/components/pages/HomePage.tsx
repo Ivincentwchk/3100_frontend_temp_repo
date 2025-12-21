@@ -1,4 +1,5 @@
 import type { AuthUser } from "../../feature/auth/api";
+import "./HomePage.css";
 
 interface HomePageProps {
   user: AuthUser;
@@ -47,13 +48,7 @@ export function HomePage({ user, onExplore, onContinueRecentCourse }: HomePagePr
                 </div>
 
                 <div className="home-course-icon" aria-hidden="true">
-                  <img
-                    src={emptyIconUrl}
-                    alt=""
-                    aria-hidden="true"
-                    className="icon-white"
-                    style={{ width: 44, height: 44 }}
-                  />
+                  <img src={emptyIconUrl} alt="" aria-hidden="true" style={{ width: 44, height: 44 }} />
                 </div>
 
                 <div className="home-course-title">Start exploring</div>

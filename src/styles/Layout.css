@@ -1,0 +1,76 @@
+
+/* --- Custom app layout utilities --- */
+.app-shell {
+  --app-header-height: 100px;
+  min-height: 100vh;
+  padding-top: var(--app-header-height);
+  background-color: #111111;
+  color: #f7f7f7;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* --- Header --- */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--app-header-height);
+  background: rgba(16, 16, 16, 0.95);
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  padding: 0 200px;
+  z-index: 100;
+}
+
+.header-logo {
+  cursor: pointer;
+  height: 70px;
+}
+
+.header-logo img {
+  height: 100%;
+  width: auto;
+}
+
+.grid-background {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.page-shell {
+  min-height: calc(100vh - var(--app-header-height));
+  padding: 20px 1.5rem 96px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+}
+
+.page-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(255, 244, 29, 0.08), transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-content {
+  width: min(640px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.page-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  color: #d6d6d6;
+  text-align: center;
+}

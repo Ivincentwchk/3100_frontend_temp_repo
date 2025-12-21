@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 import "./index.css";
+import "./styles/Layout.css";
+import "./styles/Shared.css";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient({

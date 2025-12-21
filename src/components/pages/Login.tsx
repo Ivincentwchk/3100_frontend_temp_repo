@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { requestPasswordReset, type LoginResponse } from "../../feature/auth/api";
 
+const SHOW_PASSWORD_ICON = "https://cdn-icons-png.flaticon.com/512/159/159604.png";
+const HIDE_PASSWORD_ICON = "https://cdn-icons-png.flaticon.com/512/565/565655.png";
+
+
 interface LoginProps {
   onSignUp: () => void;
   handleLogin: (user_name: string, password: string, rememberMe?: boolean) => Promise<LoginResponse>;
@@ -104,9 +108,12 @@ export function Login({
               <button
                 type="button"
                 aria-label={passwordToggleLabel}
-                className="btn btn-ghost password-toggle"
+                className="btn btn-secondary password-toggle"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
+                                <span className="password-toggle-icon" aria-hidden="true">
+                  <img src={showPassword ? HIDE_PASSWORD_ICON : SHOW_PASSWORD_ICON} alt="" />
+                </span>
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>

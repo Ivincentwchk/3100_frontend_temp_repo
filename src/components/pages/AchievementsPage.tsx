@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { getAchievements, type AchievementItem, type AchievementIconKey } from "../../feature/achievements/api";
+import "./AchievementsPage.css";
 
 interface AchievementsPageProps {
   onBack?: () => void;

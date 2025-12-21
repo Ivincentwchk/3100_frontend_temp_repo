@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import "./SubjectsPage.css";
+import "./POC.css";
 import chickenImg from "../../../assets/chicken.png";
 
 import {
