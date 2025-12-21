@@ -13,8 +13,9 @@ import { AchievementsPage } from "./components/pages/AchievementsPage";
 import { GridBackground } from "./components/GridBackground";
 import type { AuthUser } from "./feature/auth/api";
 import { useEffect, useState, type CSSProperties } from "react";
+import Ranking from "./components/pages/POC-Page/Ranking";
 
-type Page = "start" | "login" | "register";
+type Page = "start" | "login" | "register" | "ranking";
 
 function getFirstLoginFromCookie(keyBase: string): boolean {
   if (typeof document === "undefined") return false;
@@ -40,7 +41,7 @@ export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [activePage, setActivePage] = useState<NavPage>("home");
-  const [dashboardView, setDashboardView] = useState<"home" | "user_info" | "subjects" | "achievements">("home");
+  const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements" | "user_info">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [autoSelectSubjectId, setAutoSelectSubjectId] = useState<number | null>(null);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
@@ -279,7 +280,9 @@ export default function App() {
             }}
           />
         )}
-        {dashboardView === "home" ? (
+        {activePage === "ranking" ? (
+          <Ranking />
+        ) : dashboardView === "home" ? (
           <HomePage
             user={user}
             onExplore={() => handleNavigate("explore")}
@@ -324,22 +327,13 @@ export default function App() {
       <Header onLogoClick={handleLogoClick} />
       <>
         {currentPage === "start" && (
-          <StartPage
-            onGetStarted={handleGetStarted}
-            onLogin={navigateToLogin}
-          />
+          <StartPage onGetStarted={handleGetStarted} onLogin={navigateToLogin} />
         )}
         {currentPage === "login" && (
-          <Login
-            onSignUp={navigateToRegister}
-            handleLogin={handleLogin}
-            authError={error}
-          />
+          <Login onSignUp={navigateToRegister} handleLogin={handleLogin} authError={error} />
         )}
         {currentPage === "register" && (
-          <Register
-            onLogin={navigateToLogin}
-          />
+          <Register onLogin={navigateToLogin} />
         )}
       </>
     </div>
