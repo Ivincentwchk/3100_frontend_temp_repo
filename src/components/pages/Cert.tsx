@@ -43,7 +43,7 @@ const Cert = () => {
     <div className=' my-[100px] w-[120vh] text-black m-auto pt-8'>
       <button
         id="button"
-        className='text-[#fff6da] cursor-pointer'
+        className='px-6 py-2 mb-4 text-sm font-semibold tracking-wide text-[#3b2a00] bg-[#ffe08a] border border-[#e0b94c] rounded-full shadow-sm hover:bg-[#ffd25a] hover:border-[#d1a634] active:bg-[#f0b93a] transition-colors duration-150 cursor-pointer'
         onClick={handleDownloadPdf}
       >
         Download as PDF
