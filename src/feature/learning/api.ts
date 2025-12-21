@@ -54,6 +54,10 @@ export interface CompletedCourseScore {
   CourseScore: number;
 }
 
+export interface VerifyOptionResponse {
+  correct: boolean;
+}
+
 export const getSubjects = async (): Promise<Subject[]> => {
   const response = await apiClient.get<Subject[]>("/subjects/");
   return response.data;
@@ -91,5 +95,10 @@ export const submitCourseAnswers = async (
 
 export const getCompletedCourseScores = async (): Promise<CompletedCourseScore[]> => {
   const response = await apiClient.get<CompletedCourseScore[]>("/courses/completed/scores/");
+  return response.data;
+};
+
+export const verifyOption = async (optionId: number): Promise<VerifyOptionResponse> => {
+  const response = await apiClient.get<VerifyOptionResponse>(`/options/${optionId}/verify/`);
   return response.data;
 };

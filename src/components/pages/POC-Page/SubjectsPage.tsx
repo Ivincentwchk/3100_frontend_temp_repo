@@ -9,6 +9,7 @@ import {
   getQuestionDetail,
   getQuestionIdsByCourse,
   submitCourseAnswers,
+  verifyOption,
   type CourseDetail,
   type CourseListItem,
   type CourseSubmissionResponse,
@@ -26,18 +27,24 @@ interface SubjectsPageProps {
   onBookmarked?: () => void;
 }
 
+const TOTAL_QUESTIONS_PER_COURSE = 5;
+
 export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseListItem | null>(null);
   const [isViewingCourseContent, setIsViewingCourseContent] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionByQuestionId, setSelectedOptionByQuestionId] = useState<Record<number, number>>({});
+  const [verifiedQuestionById, setVerifiedQuestionById] = useState<Record<number, { optionId: number; correct: boolean }>>(
+    {}
+  );
   const [submissionResult, setSubmissionResult] = useState<CourseSubmissionResponse | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
 
   const resetAttemptState = () => {
     setCurrentQuestionIndex(0);
     setSelectedOptionByQuestionId({});
+    setVerifiedQuestionById({});
     setSubmissionResult(null);
   };
 
@@ -121,6 +128,19 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     queryFn: () => getQuestionDetail(activeQuestionId as number),
     enabled: activeQuestionId !== null,
     staleTime: 60_000,
+  });
+
+  const verifyAnswerMutation = useMutation({
+    mutationFn: async ({ questionId, optionId }: { questionId: number; optionId: number }) => {
+      const response = await verifyOption(optionId);
+      return { questionId, optionId, correct: response.correct };
+    },
+    onSuccess: ({ questionId, optionId, correct }) => {
+      setVerifiedQuestionById((prev) => ({
+        ...prev,
+        [questionId]: { optionId, correct },
+      }));
+    },
   });
 
   const submitMutation = useMutation({
@@ -278,42 +298,47 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
     if (isLoadingCourseDetail || !courseDetail) {
       return (
-        <div aria-live="polite" style={{ display: "grid", gap: "1rem" }}>
-          <div className="home-course-card" style={{ width: "100%", height: 180 }} data-variant="course-content">
-            <div className="home-course-card-bg" />
-            <div className="home-course-colorbar" aria-hidden="true" style={{ height: 180, width: 70 }}>
-              <div className="home-course-colorbar-yellow" style={{ height: 180, width: 58 }} />
-              <div className="home-course-colorbar-gradient" style={{ height: 180, width: 12 }} />
+        <div className="poc-course-content-root" aria-live="polite">
+          <div className="poc-course-content-stats-row">
+            <div className="poc-course-content-stat">
+              <div className="poc-course-content-stat-label">Best Score</div>
+              <div className="poc-course-content-stat-value">--</div>
             </div>
-            <div className="home-course-colorbar-label" aria-hidden="true" style={{ width: 44 }}>
-              <div className="home-course-colorbar-label-text" style={{ fontSize: 16 }}>
-                // CONTENT
-              </div>
-            </div>
-            <div className="home-course-icon" aria-hidden="true" style={{ left: 92, top: 22 }}>
-              <span className="home-course-icon-mark" style={{ fontSize: 24 }}>
-                ⬣
-              </span>
-            </div>
-            <div className="home-course-title" style={{ left: 92, top: 72, width: "calc(100% - 110px)", fontSize: 16 }}>
-              Loading...
+            <div className="poc-course-content-stat">
+              <div className="poc-course-content-stat-label">Best Accuracy</div>
+              <div className="poc-course-content-stat-value">—%</div>
             </div>
           </div>
 
-          <div className="poc-panel">
-            <div className="poc-section-title">Course Content</div>
-            <div style={{ marginTop: "0.5rem", display: "grid", gap: "0.75rem" }}>
-              <div className="skeleton skeleton-text lg" style={{ width: "70%" }} />
-              <div className="skeleton skeleton-text" style={{ width: "55%" }} />
-              <div className="skeleton skeleton-text" style={{ width: "85%" }} />
-              <div className="skeleton skeleton-text" style={{ width: "90%" }} />
-              <div className="skeleton skeleton-text" style={{ width: "60%" }} />
-            </div>
-            <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1rem" }}>
-              <button type="button" className="poc-link" onClick={resetToCourses}>
-                Change course
-              </button>
-            </div>
+          <div className="poc-course-content-layout">
+            <section className="poc-course-content-left">
+              <div className="poc-course-content-left-label">// CONTENT</div>
+              <div className="poc-course-content-left-title">Loading...</div>
+              <div className="poc-course-content-left-desc">
+                <div className="skeleton skeleton-text" style={{ width: "70%", height: 18 }} />
+                <div className="skeleton skeleton-text" style={{ width: "55%", height: 18 }} />
+              </div>
+              <div className="poc-course-content-left-actions">
+                <button type="button" className="poc-link" onClick={resetToCourses}>
+                  Change course
+                </button>
+              </div>
+            </section>
+
+            <section className="poc-course-content-right">
+              <div className="poc-course-content-right-header">
+                <div className="poc-section-title">Course Content</div>
+              </div>
+              <div className="poc-course-content-right-body">
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <div className="skeleton skeleton-text lg" style={{ width: "70%" }} />
+                  <div className="skeleton skeleton-text" style={{ width: "55%" }} />
+                  <div className="skeleton skeleton-text" style={{ width: "85%" }} />
+                  <div className="skeleton skeleton-text" style={{ width: "90%" }} />
+                  <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       );
@@ -325,69 +350,45 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
       </p>
     ));
 
-    const label = String(courseDetail.CourseTitle).split(" ")[0] || "COURSE";
+    const bestScore = courseId != null ? completedScoresByCourseId[courseId] : undefined;
+    const bestAccuracy =
+      bestScore != null ? Math.min(100, Math.max(0, Math.round((bestScore / TOTAL_QUESTIONS_PER_COURSE) * 100))) : null;
 
     return (
-      <div style={{ display: "grid", gap: "1rem" }}>
-        <div className="home-course-card" style={{ width: "100%", height: 180 }}>
-          <div className="home-course-card-bg" />
-
-          <div className="home-course-colorbar" aria-hidden="true" style={{ height: 180, width: 70 }}>
-            <div className="home-course-colorbar-yellow" style={{ height: 180, width: 58 }} />
-            <div className="home-course-colorbar-gradient" style={{ height: 180, width: 12 }} />
+      <div className="poc-course-content-root">
+        <div className="poc-course-content-stats-row">
+          <div className="poc-course-content-stat">
+            <div className="poc-course-content-stat-label">Best Score</div>
+            <div className="poc-course-content-stat-value">{bestScore != null ? `${bestScore}⭐` : "--"}</div>
           </div>
-
-          <div className="home-course-colorbar-label" aria-hidden="true" style={{ width: 44 }}>
-            <div className="home-course-colorbar-label-text" style={{ fontSize: 16 }}>
-              // {String(label).toUpperCase()}
-            </div>
-          </div>
-
-          <div className="home-course-icon" aria-hidden="true" style={{ left: 92, top: 22 }}>
-            {selectedSubject?.icon_svg_url ? (
-              <img
-                src={selectedSubject.icon_svg_url}
-                alt=""
-                aria-hidden="true"
-                className="icon-white"
-                style={{ width: 34, height: 34 }}
-              />
-            ) : (
-              <span className="home-course-icon-mark" style={{ fontSize: 24 }}>
-                ⬣
-              </span>
-            )}
-          </div>
-
-          <div
-            className="home-course-title"
-            style={{ left: 92, top: 72, width: "calc(100% - 110px)", fontSize: 16, textAlign: "left" }}
-          >
-            {courseDetail.CourseTitle}
-          </div>
-
-          <div className="helper-text" style={{ position: "absolute", left: 92, top: 96, width: "calc(100% - 110px)" }}>
-            {courseDetail.CourseDescription}
-          </div>
-
-          <div className="poc-card-subtitle" style={{ position: "absolute", right: 16, top: 16, color: "#fff41d", fontWeight: 700 }}>
-            Difficulty: {courseDetail.CourseDifficulty}
+          <div className="poc-course-content-stat">
+            <div className="poc-course-content-stat-label">Best Accuracy</div>
+            <div className="poc-course-content-stat-value">{bestAccuracy != null ? `${bestAccuracy}%` : "—%"}</div>
           </div>
         </div>
 
-        <div className="poc-panel poc-panel-solid" style={{ width: "100%" }}>
-          <div className="poc-section-title">Course Content</div>
+        <div className="poc-course-content-layout">
+          <section className="poc-course-content-left">
+            <div className="poc-course-content-left-label">// {selectedSubject?.SubjectName?.toUpperCase() ?? "CONTENT"}</div>
+            <div className="poc-course-content-left-title">{courseDetail.CourseTitle}</div>
+            <div className="poc-course-content-left-meta">Difficulty: {courseDetail.CourseDifficulty}</div>
+            <div className="poc-course-content-left-desc">{courseDetail.CourseDescription}</div>
+            <div className="poc-course-content-left-actions">
+              <button type="button" className="poc-link" onClick={resetToCourses}>
+                Change course
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
+                Start Practice
+              </button>
+            </div>
+          </section>
 
-          <div style={{ marginTop: "1.25rem", fontSize: "1.1rem", lineHeight: 1.8 }}>{paragraphs}</div>
-
-          <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem", gap: "0.75rem" }}>
-            <button type="button" className="poc-link" onClick={resetToCourses}>
-              Change course
-            </button>
-            <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
-              Start Practice
-            </button>
-          </div>
+          <section className="poc-course-content-right">
+            <div className="poc-course-content-right-header">
+              <div className="poc-section-title">Course Content</div>
+            </div>
+            <div className="poc-course-content-right-body">{paragraphs}</div>
+          </section>
         </div>
       </div>
     );
@@ -402,19 +403,36 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     const progressPercent = totalQuestions ? (currentQuestionNumber / totalQuestions) * 100 : 0;
     const isLastQuestion = totalQuestions ? currentQuestionIndex === totalQuestions - 1 : false;
     const activeSelection = activeQuestionId != null ? selectedOptionByQuestionId[activeQuestionId] : undefined;
-    const allQuestionsAnswered =
-      !!questionIds && questionIds.length > 0 && questionIds.every((qid) => selectedOptionByQuestionId[qid] != null);
+    const currentVerification = activeQuestionId != null ? verifiedQuestionById[activeQuestionId] : null;
+    const allQuestionsVerified =
+      !!questionIds && questionIds.length > 0 && questionIds.every((qid) => verifiedQuestionById[qid]?.optionId != null);
+    const pendingVerifyQuestionId = verifyAnswerMutation.variables?.questionId;
+    const isVerifyingCurrentQuestion = verifyAnswerMutation.isPending && pendingVerifyQuestionId === activeQuestionId;
 
-    const primaryLabel = isLastQuestion
-      ? submitMutation.isPending
-        ? "Submitting..."
-        : "Submit answers"
-      : "Check answer";
+    const primaryLabel = currentVerification
+      ? isLastQuestion
+        ? submitMutation.isPending
+          ? "Submitting..."
+          : "Finish lesson"
+        : "Next question"
+      : isVerifyingCurrentQuestion
+        ? "Checking..."
+        : "Check answer";
 
     const handlePrimaryAction = () => {
       if (!questionIds?.length || activeQuestionId == null) return;
+
+      if (!currentVerification) {
+        if (activeSelection == null || isVerifyingCurrentQuestion) return;
+        verifyAnswerMutation.mutate({
+          questionId: activeQuestionId,
+          optionId: activeSelection,
+        });
+        return;
+      }
+
       if (isLastQuestion) {
-        if (!submitMutation.isPending) {
+        if (!submitMutation.isPending && allQuestionsVerified) {
           submitMutation.mutate();
         }
       } else {
@@ -424,9 +442,11 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
     const primaryDisabled = isQuestionBankLoading
       ? true
-      : isLastQuestion
-        ? submitMutation.isPending || !allQuestionsAnswered
-        : activeSelection == null;
+      : !currentVerification
+        ? activeSelection == null || isVerifyingCurrentQuestion
+        : isLastQuestion
+          ? submitMutation.isPending || !allQuestionsVerified
+          : false;
 
     const handleQuitLesson = () => {
       resetToCourses();
@@ -443,13 +463,22 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
       return activeQuestionDetail.options.map((opt) => {
         const selected = selectedOptionByQuestionId[activeQuestionId] === opt.OptionID;
+        const isLocked = Boolean(currentVerification);
+        const isCorrectSelection = Boolean(
+          currentVerification?.correct && currentVerification.optionId === opt.OptionID
+        );
+        const isIncorrectSelection = Boolean(
+          currentVerification && !currentVerification.correct && currentVerification.optionId === opt.OptionID
+        );
         return (
           <button
             key={opt.OptionID}
             type="button"
-            className={`poc-qa-option ${selected ? "is-selected" : ""}`}
+            className={`poc-qa-option ${selected ? "is-selected" : ""} ${
+              isCorrectSelection ? "is-correct" : ""
+            } ${isIncorrectSelection ? "is-incorrect" : ""} ${isLocked ? "is-locked" : ""}`}
             onClick={() => {
-              if (activeQuestionId == null) return;
+              if (activeQuestionId == null || isLocked) return;
               const next = {
                 ...selectedOptionByQuestionId,
                 [activeQuestionId]: opt.OptionID,
@@ -458,6 +487,7 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
               persistLocalProgress(next);
               setSubmissionResult(null);
             }}
+            disabled={isLocked || isVerifyingCurrentQuestion}
             aria-pressed={selected}
           >
             {opt.OptionText}
@@ -501,7 +531,7 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
               type="button"
               className="poc-qa-prev"
               onClick={() => setCurrentQuestionIndex((i) => Math.max(0, i - 1))}
-              disabled={isQuestionBankLoading || currentQuestionIndex === 0}
+              disabled={isQuestionBankLoading || currentQuestionIndex === 0 || isVerifyingCurrentQuestion}
             >
               ← Prev
             </button>
@@ -528,15 +558,16 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     return renderQuestionStep();
   };
 
+  const isCourseContentMode = Boolean(selectedSubject && selectedCourse && isViewingCourseContent);
   const isQuestionMode = Boolean(selectedSubject && selectedCourse && !isViewingCourseContent && !isResultOpen);
   const isResultMode = Boolean(isResultOpen && submissionResult);
-  const isFullscreenMode = isQuestionMode || isResultMode;
+  const isFullscreenMode = isQuestionMode || isResultMode || isCourseContentMode;
 
   return (
     <div
       className={`page-shell poc-explore-root ${isFullscreenMode ? "is-fullscreen-mode" : ""} ${
         isQuestionMode ? "is-qa-mode" : ""
-      } ${isResultMode ? "is-result-mode" : ""}`}
+      } ${isResultMode ? "is-result-mode" : ""} ${isCourseContentMode ? "is-course-content-mode" : ""}`}
       data-name="poc-subjects"
     >
       <div className="page-content">
