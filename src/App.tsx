@@ -6,13 +6,13 @@ import { Register } from "./components/pages/Register";
 import { AuthHeader } from "./components/AuthHeader";
 import Dashboard from "./components/Dashboard";
 import { ResetPassword } from "./components/pages/ResetPassword";
-import Cert from "./components/Cert";
+import Cert from "./components/pages/Cert";
 
-type Page = "start" | "login" | "register";
+type Page = "start" | "login" | "register" | "cert";
 
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, token } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>("start");
+  const [currentPage, setCurrentPage] = useState<Page>("cert");
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleGetStarted = () => {
@@ -90,9 +90,10 @@ export default function App() {
             onLogin={navigateToLogin}
           />
         )}
-        <div>
+        {currentPage === "cert" && (
           <Cert />
-        </div>
+        )}
+
       </>
     </div>
   );
