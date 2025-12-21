@@ -12,6 +12,15 @@ export interface CourseListItem {
   CourseTitle: string;
 }
 
+export interface CourseDetail {
+  CourseID: number;
+  SubjectID: number;
+  CourseTitle: string;
+  CourseDescription: string;
+  CourseDifficulty: number;
+  Content: string;
+}
+
 export interface QuestionOption {
   OptionID: number;
   OptionText: string;
@@ -52,6 +61,11 @@ export const getSubjects = async (): Promise<Subject[]> => {
 
 export const getCoursesBySubject = async (subjectId: number): Promise<CourseListItem[]> => {
   const response = await apiClient.get<CourseListItem[]>(`/courses/subject/${subjectId}/`);
+  return response.data;
+};
+
+export const getCourseDetail = async (courseId: number): Promise<CourseDetail> => {
+  const response = await apiClient.get<CourseDetail>(`/courses/${courseId}/`);
   return response.data;
 };
 

@@ -3,9 +3,11 @@ import { useMemo, useState } from "react";
 
 import {
   getCompletedCourseScores,
+  getCourseDetail,
   getQuestionDetail,
   getQuestionIdsByCourse,
   submitCourseAnswers,
+  type CourseDetail,
   type CourseListItem,
   type CourseSubmissionResponse,
   type CompletedCourseScore,
@@ -25,6 +27,7 @@ interface SubjectsPageProps {
 export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseListItem | null>(null);
+  const [isViewingCourseContent, setIsViewingCourseContent] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionByQuestionId, setSelectedOptionByQuestionId] = useState<Record<number, number>>({});
   const [submissionResult, setSubmissionResult] = useState<CourseSubmissionResponse | null>(null);
@@ -39,11 +42,13 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const resetToSubjects = () => {
     setSelectedSubject(null);
     setSelectedCourse(null);
+    setIsViewingCourseContent(false);
     resetAttemptState();
   };
 
   const resetToCourses = () => {
     setSelectedCourse(null);
+    setIsViewingCourseContent(false);
     resetAttemptState();
   };
 
@@ -90,6 +95,13 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const { data: questionIds, isLoading: isLoadingQuestionIds } = useQuery<number[]>({
     queryKey: ["questionIds", courseId],
     queryFn: () => getQuestionIdsByCourse(courseId as number),
+    enabled: courseId !== null,
+    staleTime: 60_000,
+  });
+
+  const { data: courseDetail, isLoading: isLoadingCourseDetail } = useQuery<CourseDetail>({
+    queryKey: ["courseDetail", courseId],
+    queryFn: () => getCourseDetail(courseId as number),
     enabled: courseId !== null,
     staleTime: 60_000,
   });
@@ -154,6 +166,7 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const handleSelectSubject = (subject: Subject) => {
     setSelectedSubject(subject);
     setSelectedCourse(null);
+    setIsViewingCourseContent(false);
     resetAttemptState();
 
     if (subject.SubjectID) {
@@ -163,6 +176,7 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
   const handleSelectCourse = (course: CourseListItem) => {
     setSelectedCourse(course);
+    setIsViewingCourseContent(true);
     resetAttemptState();
 
     // Track bookmarked subject on backend for later use (e.g., Home page).
@@ -264,6 +278,66 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
           onSelect={handleSelectCourse}
         />
       </>
+    );
+  };
+
+  const renderCourseContentPage = () => {
+    if (!selectedCourse) return null;
+
+    if (isLoadingCourseDetail || !courseDetail) {
+      return (
+        <div className="poc-panel" aria-live="polite">
+          <div className="poc-section-title">Course Content</div>
+          <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
+            <div className="skeleton skeleton-text lg" style={{ width: "70%" }} />
+            <div className="skeleton skeleton-text" style={{ width: "55%" }} />
+            <div className="skeleton skeleton-text" style={{ width: "85%" }} />
+            <div className="skeleton skeleton-text" style={{ width: "90%" }} />
+            <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+          </div>
+          <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem" }}>
+            <button type="button" className="poc-link" onClick={resetToCourses}>
+              Change course
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const paragraphs = courseDetail.Content.split(/\n{2,}/).map((chunk, idx) => (
+      <p key={idx} style={{ marginBottom: "1rem", whiteSpace: "pre-line" }}>
+        {chunk.trim()}
+      </p>
+    ));
+
+    return (
+      <div className="poc-panel" style={{ maxWidth: "900px" }}>
+        <div className="poc-row" style={{ alignItems: "flex-start" }}>
+          <div>
+            <div className="poc-section-title">Course Content</div>
+            <div className="poc-card-title" style={{ marginTop: "0.5rem" }}>
+              {courseDetail.CourseTitle}
+            </div>
+            <div className="poc-card-subtitle" style={{ marginTop: "0.25rem" }}>
+              {courseDetail.CourseDescription}
+            </div>
+          </div>
+          <span className="poc-card-subtitle" style={{ color: "#fff41d", fontWeight: 700 }}>
+            Difficulty: {courseDetail.CourseDifficulty}
+          </span>
+        </div>
+
+        <div style={{ marginTop: "1.5rem", fontSize: "1rem", lineHeight: 1.65 }}>{paragraphs}</div>
+
+        <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem", gap: "0.75rem" }}>
+          <button type="button" className="poc-link" onClick={resetToCourses}>
+            Change course
+          </button>
+          <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
+            Start Practice
+          </button>
+        </div>
+      </div>
     );
   };
 
@@ -395,6 +469,7 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const renderMain = () => {
     if (!selectedSubject) return renderSubjectStep();
     if (!selectedCourse) return renderCourseStep();
+    if (isViewingCourseContent) return renderCourseContentPage();
     return renderQuestionStep();
   };
 
