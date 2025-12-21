@@ -11,6 +11,7 @@ import { ResetPassword } from "./components/pages/ResetPassword";
 import { SubjectsPage } from "./components/pages/POC-Page/SubjectsPage";
 import { AchievementsPage } from "./components/pages/AchievementsPage";
 import { GridBackground } from "./components/GridBackground";
+import type { AuthUser } from "./feature/auth/api";
 
 type Page = "start" | "login" | "register";
 
@@ -20,6 +21,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<NavPage>("home");
   const [dashboardView, setDashboardView] = useState<"home" | "user_info" | "subjects" | "achievements">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [autoSelectSubjectId, setAutoSelectSubjectId] = useState<number | null>(null);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
 
   const handleLogoClick = () => {
@@ -58,6 +60,11 @@ export default function App() {
   const handleLogoutAndReturnHome = () => {
     handleLogout();
     setCurrentPage("start");
+  };
+
+  const handleContinueRecentCourse = (subject: NonNullable<AuthUser["recent_bookmarked_subjects"]>[number]) => {
+    setAutoSelectSubjectId(subject.subject_id);
+    handleNavigate("explore");
   };
 
   if (loading) {
@@ -116,16 +123,19 @@ export default function App() {
           <HomePage
             user={user}
             onExplore={() => handleNavigate("explore")}
-            onContinueRecentCourse={() => handleNavigate("explore")}
+            onContinueRecentCourse={handleContinueRecentCourse}
           />
         ) : dashboardView === "subjects" ? (
           <SubjectsPage
             onBack={() => {
               refreshUser();
+              setAutoSelectSubjectId(null);
               setDashboardView("user_info");
             }}
             user={user}
             onBookmarked={refreshUser}
+            autoSelectSubjectId={autoSelectSubjectId ?? undefined}
+            onAutoSelectHandled={() => setAutoSelectSubjectId(null)}
           />
         ) : dashboardView === "achievements" ? (
           <AchievementsPage onBack={() => setDashboardView("user_info")} />

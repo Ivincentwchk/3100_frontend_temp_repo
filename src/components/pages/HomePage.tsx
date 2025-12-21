@@ -1,10 +1,9 @@
 import type { AuthUser } from "../../feature/auth/api";
-import { useMemo } from "react";
 
 interface HomePageProps {
   user: AuthUser;
   onExplore: () => void;
-  onContinueRecentCourse?: () => void;
+  onContinueRecentCourse?: (subject: NonNullable<AuthUser["recent_bookmarked_subjects"]>[number]) => void;
 }
 
 export function HomePage({ user, onExplore, onContinueRecentCourse }: HomePageProps) {
@@ -115,7 +114,7 @@ export function HomePage({ user, onExplore, onContinueRecentCourse }: HomePagePr
                       <button
                         type="button"
                         className="home-course-continue"
-                        onClick={onContinueRecentCourse}
+                        onClick={() => onContinueRecentCourse?.(bm)}
                         title="Continue"
                         style={{ left: 92, top: 120, width: "calc(100% - 110px)", height: 38, fontSize: 16 }}
                       >

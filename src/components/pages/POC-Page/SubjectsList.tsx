@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 import { getSubjects, type Subject } from "../../../feature/learning/api";
 import { removeBookmarkedSubject, setBookmarkedSubject, type AuthUser } from "../../../feature/auth/api";
@@ -8,9 +8,11 @@ interface SubjectsListProps {
   onSelect?: (subject: Subject) => void;
   user?: AuthUser;
   onBookmarked?: () => void;
+  autoSelectSubjectId?: number;
+  onAutoSelect?: () => void;
 }
 
-export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps) {
+export function SubjectsList({ onSelect, user, onBookmarked, autoSelectSubjectId, onAutoSelect }: SubjectsListProps) {
   const isBookmarked = (subjectId: number) => {
     const list = user?.recent_bookmarked_subjects;
     if (!list?.length) return false;
@@ -28,6 +30,7 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
     mutationFn: (subjectId: number) => removeBookmarkedSubject(subjectId),
     onSuccess: () => {
       onBookmarked?.();
+      bookmarkMutation.reset();
     },
   });
   const cardHeight = 220;
@@ -41,6 +44,27 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
     queryFn: getSubjects,
     staleTime: 60_000,
   });
+
+  const hasAutoSelectedRef = useRef(false);
+
+  useEffect(() => {
+    hasAutoSelectedRef.current = false;
+  }, [autoSelectSubjectId]);
+
+  useEffect(() => {
+    if (hasAutoSelectedRef.current) return;
+    if (!autoSelectSubjectId) return;
+    if (!subjects?.length) return;
+
+    const target = subjects.find((subject) => subject.SubjectID === autoSelectSubjectId);
+    if (target) {
+      hasAutoSelectedRef.current = true;
+      setTimeout(() => {
+        onSelect?.(target);
+        onAutoSelect?.();
+      }, 0);
+    }
+  }, [autoSelectSubjectId, subjects, onSelect, onAutoSelect]);
 
   if (isLoading) {
     return (

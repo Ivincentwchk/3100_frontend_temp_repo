@@ -25,11 +25,13 @@ interface SubjectsPageProps {
   onBack?: () => void;
   user?: import("../../../feature/auth/api").AuthUser;
   onBookmarked?: () => void;
+  autoSelectSubjectId?: number;
+  onAutoSelectHandled?: () => void;
 }
 
 const TOTAL_QUESTIONS_PER_COURSE = 5;
 
-export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) {
+export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, onAutoSelectHandled }: SubjectsPageProps) {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseListItem | null>(null);
   const [isViewingCourseContent, setIsViewingCourseContent] = useState(false);
@@ -262,7 +264,13 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
         <div className="poc-explore-section-row">
           {renderV2SectionHeader("//EXPLORE", "SUBJECTS", 520)}
         </div>
-        <SubjectsList onSelect={handleSelectSubject} user={user} onBookmarked={onBookmarked} />
+        <SubjectsList
+          onSelect={handleSelectSubject}
+          user={user}
+          onBookmarked={onBookmarked}
+          autoSelectSubjectId={autoSelectSubjectId}
+          onAutoSelect={onAutoSelectHandled}
+        />
       </>
     );
   };
