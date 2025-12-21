@@ -11,12 +11,13 @@ import { ResetPassword } from "./components/pages/ResetPassword";
 import { SubjectsPage } from "./components/pages/POC-Page/SubjectsPage";
 import { AchievementsPage } from "./components/pages/AchievementsPage";
 import { GridBackground } from "./components/GridBackground";
+import Ranking from "./components/pages/POC-Page/Ranking"; 
 
-type Page = "start" | "login" | "register";
+type Page = "start" | "login" | "register" | "ranking";
 
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>("start");
+  const [currentPage, setCurrentPage] = useState<Page>("ranking");
   const [activePage, setActivePage] = useState<NavPage>("home");
   const [dashboardView, setDashboardView] = useState<"home" | "user_info" | "subjects" | "achievements">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -164,6 +165,9 @@ export default function App() {
           <Register
             onLogin={navigateToLogin}
           />
+        )}
+        {currentPage === "ranking" && (
+          <Ranking />
         )}
       </>
     </div>
