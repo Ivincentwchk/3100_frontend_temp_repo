@@ -373,7 +373,7 @@
 .home-course-card-bg {
   position: absolute;
   inset: 0;
-  background: #1c1c1c;
+  background: rgba(5, 5, 5, 0.97);
   border: 1px solid #666666;
 }
 

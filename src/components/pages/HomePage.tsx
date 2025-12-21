@@ -1,5 +1,5 @@
 import type { AuthUser } from "../../feature/auth/api";
-import { useState } from "react";
+import { useMemo } from "react";
 
 interface HomePageProps {
   user: AuthUser;
@@ -12,7 +12,6 @@ export function HomePage({ user, onExplore, onContinueRecentCourse }: HomePagePr
   const streak = user.profile.login_streak_days;
 
   const bookmarkedSubjects = user.recent_bookmarked_subjects?.slice(0, 5) ?? [];
-  const [bookmarkIndex] = useState(0);
 
   const emptyIconUrl = "https://upload.wikimedia.org/wikipedia/commons/e/ee/Wakaba_mark.svg";
 

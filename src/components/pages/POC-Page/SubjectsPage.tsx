@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import "./SubjectsPage.css";
+import chickenImg from "../../../assets/chicken.png";
 
 import {
   getCompletedCourseScores,
@@ -39,6 +41,11 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     setSubmissionResult(null);
   };
 
+  const clearLocalProgress = () => {
+    if (!storageKey) return;
+    localStorage.removeItem(storageKey);
+  };
+
   const resetToSubjects = () => {
     setSelectedSubject(null);
     setSelectedCourse(null);
@@ -57,13 +64,16 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     resetToCourses();
   };
 
+  const startNewLesson = () => {
+    setIsResultOpen(false);
+    clearLocalProgress();
+    resetAttemptState();
+  };
+
   const backToDashboard = () => {
     setIsResultOpen(false);
     onBack?.();
   };
-
-  const step = selectedSubject ? (selectedCourse ? 3 : 2) : 1;
-  const progressPercent = step === 1 ? 33 : step === 2 ? 66 : 100;
 
   const courseId = selectedCourse?.CourseID ?? null;
 
@@ -89,8 +99,6 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     });
     return map;
   }, [completedScores]);
-
-  const selectedCourseBestScore = courseId !== null ? completedScoresByCourseId[courseId] : undefined;
 
   const { data: questionIds, isLoading: isLoadingQuestionIds } = useQuery<number[]>({
     queryKey: ["questionIds", courseId],
@@ -145,24 +153,6 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     );
   };
 
-  const loadLocalProgress = () => {
-    if (!storageKey) return;
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as { answers?: Record<string, number> };
-      const answers = parsed.answers ?? {};
-      const normalized: Record<number, number> = {};
-      Object.entries(answers).forEach(([k, v]) => {
-        const qid = Number(k);
-        if (!Number.isNaN(qid)) normalized[qid] = v;
-      });
-      setSelectedOptionByQuestionId(normalized);
-    } catch {
-      // ignore
-    }
-  };
-
   const handleSelectSubject = (subject: Subject) => {
     setSelectedSubject(subject);
     setSelectedCourse(null);
@@ -178,75 +168,58 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     setSelectedCourse(course);
     setIsViewingCourseContent(true);
     resetAttemptState();
-
-    // Track bookmarked subject on backend for later use (e.g., Home page).
-    if (selectedSubject?.SubjectID) {
-      setBookmarkedSubjectMutation.mutate(selectedSubject.SubjectID);
-    }
   };
 
-  const renderSidebar = () => {
+  const renderV2SectionHeader = (prefixText: string, title: string, width = 305) => {
     return (
-      <div className="poc-sidebar">
-        <div className="poc-stepper">
-          <div className="poc-row">
-            <div className="poc-section-title">Practice</div>
-            {onBack && (
-              <button type="button" className="poc-back" onClick={backToDashboard}>
-                Back to Dashboard
-              </button>
-            )}
-          </div>
-
-          <div className="poc-breadcrumbs">
-            <span>{selectedSubject ? <strong>Subject</strong> : "Subject"}</span>
-            <span>›</span>
-            <span>{selectedCourse ? <strong>Course</strong> : "Course"}</span>
-            <span>›</span>
-            <span>{selectedCourse ? <strong>Question</strong> : "Question"}</span>
-          </div>
-
-          <div className="poc-progress-track">
-            <div className="poc-progress-bar" style={{ width: `${progressPercent}%` }} />
-          </div>
-
-          <p className="helper-text" style={{ textAlign: "center" }}>
-            Step {step} of 3
-          </p>
+      <div className="home-label" data-name="label" style={{ width }}>
+        <div className="home-label-inner">
+          <div className="home-label-top" />
+          <div className="home-label-body" />
+          <div className="home-label-variant">{title}</div>
+          <div className="home-label-pill" />
+          <div className="home-label-text">{prefixText}</div>
+          <div className="home-label-strip" />
         </div>
+      </div>
+    );
+  };
 
+  const renderResultPage = () => {
+    if (!selectedSubject || !selectedCourse || !submissionResult) return null;
 
+    const total = submissionResult.total || 0;
+    const correct = submissionResult.correct || 0;
+    const accuracy = total ? Math.round((correct / total) * 100) : 0;
 
-        {selectedSubject && (
-          <div className="poc-panel">
-            <div className="poc-section-title">Subject</div>
-            <div className="poc-card-title">{selectedSubject.SubjectName}</div>
-            <div className="poc-card-subtitle">{selectedSubject.SubjectDescription}</div>
-            <button type="button" className="poc-link" onClick={resetToSubjects}>
-              Change subject
-            </button>
-          </div>
-        )}
+    return (
+      <div className="poc-result-layout">
+        <section className="poc-result-left">
+          <button type="button" className="poc-result-back" onClick={backToCourses}>
+            ← Back
+          </button>
 
-        {selectedCourse && (
-          <div className="poc-panel">
-            <div className="poc-row">
-              <div className="poc-section-title">Course</div>
-              {selectedCourseBestScore !== undefined && (
-                <div className="poc-card-subtitle" style={{ color: "#fff41d", fontWeight: 700 }}>
-                  Best: {selectedCourseBestScore}
-                </div>
-              )}
+          <div className="poc-result-course-title">{selectedCourse.CourseTitle}</div>
+          <div className="poc-result-course-desc">{courseDetail?.CourseDescription ?? ""}</div>
+
+          <button type="button" className="poc-result-primary" onClick={startNewLesson}>
+            Start New lesson
+          </button>
+        </section>
+
+        <section className="poc-result-right">
+          <div className="poc-result-metric">
+            <div className="poc-result-metric-label">Score</div>
+            <div className="poc-result-metric-value">
+              {correct}⭐
             </div>
-            <div className="poc-card-title">{selectedCourse.CourseTitle}</div>
-            <button type="button" className="poc-link" onClick={resetToCourses}>
-              Change course
-            </button>
-            <button type="button" className="poc-link" onClick={loadLocalProgress}>
-              Load saved answers
-            </button>
           </div>
-        )}
+
+          <div className="poc-result-metric">
+            <div className="poc-result-metric-label">Accuracy</div>
+            <div className="poc-result-metric-value">{accuracy}%</div>
+          </div>
+        </section>
       </div>
     );
   };
@@ -254,9 +227,20 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const renderSubjectStep = () => {
     return (
       <>
-        <div className="poc-panel">
-          <div className="poc-section-title">Choose a subject</div>
-          <div className="helper-text">Pick what you want to practice today.</div>
+        {onBack && (
+          <button
+            type="button"
+            aria-label="Back"
+            title="Back"
+            className="btn btn-ghost poc-explore-back-button"
+            onClick={backToDashboard}
+          >
+            ←
+          </button>
+        )}
+
+        <div className="poc-explore-section-row">
+          {renderV2SectionHeader("//EXPLORE", "SUBJECTS", 520)}
         </div>
         <SubjectsList onSelect={handleSelectSubject} user={user} onBookmarked={onBookmarked} />
       </>
@@ -268,12 +252,20 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
     return (
       <>
-        <div className="poc-panel">
-          <div className="poc-section-title">Choose a course</div>
-          <div className="helper-text">Completed courses show your best score.</div>
-        </div>
+        <button
+          type="button"
+          aria-label="Back"
+          title="Back"
+          className="btn btn-ghost poc-explore-back-button"
+          onClick={resetToSubjects}
+        >
+          ←
+        </button>
+
         <CoursesList
           subjectId={selectedSubject.SubjectID}
+          subjectName={selectedSubject.SubjectName}
+          subjectIconUrl={selectedSubject.icon_svg_url}
           completedScoresByCourseId={completedScoresByCourseId}
           onSelect={handleSelectCourse}
         />
@@ -286,19 +278,42 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
 
     if (isLoadingCourseDetail || !courseDetail) {
       return (
-        <div className="poc-panel" aria-live="polite">
-          <div className="poc-section-title">Course Content</div>
-          <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
-            <div className="skeleton skeleton-text lg" style={{ width: "70%" }} />
-            <div className="skeleton skeleton-text" style={{ width: "55%" }} />
-            <div className="skeleton skeleton-text" style={{ width: "85%" }} />
-            <div className="skeleton skeleton-text" style={{ width: "90%" }} />
-            <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+        <div aria-live="polite" style={{ display: "grid", gap: "1rem" }}>
+          <div className="home-course-card" style={{ width: "100%", height: 180 }} data-variant="course-content">
+            <div className="home-course-card-bg" />
+            <div className="home-course-colorbar" aria-hidden="true" style={{ height: 180, width: 70 }}>
+              <div className="home-course-colorbar-yellow" style={{ height: 180, width: 58 }} />
+              <div className="home-course-colorbar-gradient" style={{ height: 180, width: 12 }} />
+            </div>
+            <div className="home-course-colorbar-label" aria-hidden="true" style={{ width: 44 }}>
+              <div className="home-course-colorbar-label-text" style={{ fontSize: 16 }}>
+                // CONTENT
+              </div>
+            </div>
+            <div className="home-course-icon" aria-hidden="true" style={{ left: 92, top: 22 }}>
+              <span className="home-course-icon-mark" style={{ fontSize: 24 }}>
+                ⬣
+              </span>
+            </div>
+            <div className="home-course-title" style={{ left: 92, top: 72, width: "calc(100% - 110px)", fontSize: 16 }}>
+              Loading...
+            </div>
           </div>
-          <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem" }}>
-            <button type="button" className="poc-link" onClick={resetToCourses}>
-              Change course
-            </button>
+
+          <div className="poc-panel">
+            <div className="poc-section-title">Course Content</div>
+            <div style={{ marginTop: "0.5rem", display: "grid", gap: "0.75rem" }}>
+              <div className="skeleton skeleton-text lg" style={{ width: "70%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "55%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "85%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "90%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+            </div>
+            <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1rem" }}>
+              <button type="button" className="poc-link" onClick={resetToCourses}>
+                Change course
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -310,32 +325,69 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
       </p>
     ));
 
+    const label = String(courseDetail.CourseTitle).split(" ")[0] || "COURSE";
+
     return (
-      <div className="poc-panel" style={{ maxWidth: "900px" }}>
-        <div className="poc-row" style={{ alignItems: "flex-start" }}>
-          <div>
-            <div className="poc-section-title">Course Content</div>
-            <div className="poc-card-title" style={{ marginTop: "0.5rem" }}>
-              {courseDetail.CourseTitle}
-            </div>
-            <div className="poc-card-subtitle" style={{ marginTop: "0.25rem" }}>
-              {courseDetail.CourseDescription}
+      <div style={{ display: "grid", gap: "1rem" }}>
+        <div className="home-course-card" style={{ width: "100%", height: 180 }}>
+          <div className="home-course-card-bg" />
+
+          <div className="home-course-colorbar" aria-hidden="true" style={{ height: 180, width: 70 }}>
+            <div className="home-course-colorbar-yellow" style={{ height: 180, width: 58 }} />
+            <div className="home-course-colorbar-gradient" style={{ height: 180, width: 12 }} />
+          </div>
+
+          <div className="home-course-colorbar-label" aria-hidden="true" style={{ width: 44 }}>
+            <div className="home-course-colorbar-label-text" style={{ fontSize: 16 }}>
+              // {String(label).toUpperCase()}
             </div>
           </div>
-          <span className="poc-card-subtitle" style={{ color: "#fff41d", fontWeight: 700 }}>
+
+          <div className="home-course-icon" aria-hidden="true" style={{ left: 92, top: 22 }}>
+            {selectedSubject?.icon_svg_url ? (
+              <img
+                src={selectedSubject.icon_svg_url}
+                alt=""
+                aria-hidden="true"
+                className="icon-white"
+                style={{ width: 34, height: 34 }}
+              />
+            ) : (
+              <span className="home-course-icon-mark" style={{ fontSize: 24 }}>
+                ⬣
+              </span>
+            )}
+          </div>
+
+          <div
+            className="home-course-title"
+            style={{ left: 92, top: 72, width: "calc(100% - 110px)", fontSize: 16, textAlign: "left" }}
+          >
+            {courseDetail.CourseTitle}
+          </div>
+
+          <div className="helper-text" style={{ position: "absolute", left: 92, top: 96, width: "calc(100% - 110px)" }}>
+            {courseDetail.CourseDescription}
+          </div>
+
+          <div className="poc-card-subtitle" style={{ position: "absolute", right: 16, top: 16, color: "#fff41d", fontWeight: 700 }}>
             Difficulty: {courseDetail.CourseDifficulty}
-          </span>
+          </div>
         </div>
 
-        <div style={{ marginTop: "1.5rem", fontSize: "1rem", lineHeight: 1.65 }}>{paragraphs}</div>
+        <div className="poc-panel poc-panel-solid" style={{ width: "100%" }}>
+          <div className="poc-section-title">Course Content</div>
 
-        <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem", gap: "0.75rem" }}>
-          <button type="button" className="poc-link" onClick={resetToCourses}>
-            Change course
-          </button>
-          <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
-            Start Practice
-          </button>
+          <div style={{ marginTop: "1.25rem", fontSize: "1.1rem", lineHeight: 1.8 }}>{paragraphs}</div>
+
+          <div className="poc-row" style={{ justifyContent: "flex-end", marginTop: "1.5rem", gap: "0.75rem" }}>
+            <button type="button" className="poc-link" onClick={resetToCourses}>
+              Change course
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
+              Start Practice
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -344,125 +396,127 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
   const renderQuestionStep = () => {
     if (!selectedSubject || !selectedCourse) return null;
 
+    const isQuestionBankLoading = isLoadingQuestionIds && (!questionIds || (questionIds as number[]).length === 0);
+    const totalQuestions = questionIds?.length ?? 0;
+    const currentQuestionNumber = totalQuestions ? Math.min(currentQuestionIndex + 1, totalQuestions) : 0;
+    const progressPercent = totalQuestions ? (currentQuestionNumber / totalQuestions) * 100 : 0;
+    const isLastQuestion = totalQuestions ? currentQuestionIndex === totalQuestions - 1 : false;
+    const activeSelection = activeQuestionId != null ? selectedOptionByQuestionId[activeQuestionId] : undefined;
+    const allQuestionsAnswered =
+      !!questionIds && questionIds.length > 0 && questionIds.every((qid) => selectedOptionByQuestionId[qid] != null);
+
+    const primaryLabel = isLastQuestion
+      ? submitMutation.isPending
+        ? "Submitting..."
+        : "Submit answers"
+      : "Check answer";
+
+    const handlePrimaryAction = () => {
+      if (!questionIds?.length || activeQuestionId == null) return;
+      if (isLastQuestion) {
+        if (!submitMutation.isPending) {
+          submitMutation.mutate();
+        }
+      } else {
+        setCurrentQuestionIndex((i) => Math.min(questionIds.length - 1, i + 1));
+      }
+    };
+
+    const primaryDisabled = isQuestionBankLoading
+      ? true
+      : isLastQuestion
+        ? submitMutation.isPending || !allQuestionsAnswered
+        : activeSelection == null;
+
+    const handleQuitLesson = () => {
+      resetToCourses();
+    };
+
+    const renderOptionButtons = () => {
+      if (isLoadingQuestionDetail || !activeQuestionDetail || activeQuestionId == null) {
+        return [0, 1, 2, 3].map((idx) => (
+          <button key={idx} type="button" className="poc-qa-option is-loading" disabled>
+            <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+          </button>
+        ));
+      }
+
+      return activeQuestionDetail.options.map((opt) => {
+        const selected = selectedOptionByQuestionId[activeQuestionId] === opt.OptionID;
+        return (
+          <button
+            key={opt.OptionID}
+            type="button"
+            className={`poc-qa-option ${selected ? "is-selected" : ""}`}
+            onClick={() => {
+              if (activeQuestionId == null) return;
+              const next = {
+                ...selectedOptionByQuestionId,
+                [activeQuestionId]: opt.OptionID,
+              };
+              setSelectedOptionByQuestionId(next);
+              persistLocalProgress(next);
+              setSubmissionResult(null);
+            }}
+            aria-pressed={selected}
+          >
+            {opt.OptionText}
+          </button>
+        );
+      });
+    };
+
+    const questionTextContent = isLoadingQuestionDetail || !activeQuestionDetail ? (
+      <div className="skeleton skeleton-text lg" style={{ width: "90%" }} />
+    ) : (
+      <p>{activeQuestionDetail.QuestionDescription}</p>
+    );
+
     return (
-      <>
-        <div className="poc-panel">
-          <div className="poc-row">
-            <div className="poc-section-title">Question</div>
-            {questionIds && (
-              <div className="poc-card-subtitle">
-                {Math.min(currentQuestionIndex + 1, questionIds.length)} / {questionIds.length}
-              </div>
-            )}
-          </div>
-          {isLoadingQuestionIds && (
-            <div aria-hidden="true" style={{ display: "grid", gap: "0.5rem" }}>
-              <div className="skeleton skeleton-text" style={{ width: "55%" }} />
-              <div className="skeleton skeleton-text sm" style={{ width: "35%" }} />
+      <div className="poc-qa-layout">
+        <section className="poc-qa-question-panel">
+          <button type="button" className="poc-qa-quit" onClick={handleQuitLesson}>
+            ✕ Quit lesson
+          </button>
+
+          <div className="poc-qa-course-meta">
+            <div className="poc-qa-course-label">// {selectedSubject.SubjectName?.toUpperCase() ?? "QUESTION"}</div>
+            <div className="poc-qa-course-title">{selectedCourse.CourseTitle}</div>
+            <div className="poc-qa-progress-label">
+              {totalQuestions ? `Question ${currentQuestionNumber}/${totalQuestions}` : "Loading questions..."}
             </div>
-          )}
-        </div>
-
-        {activeQuestionId !== null && (
-          <div className="poc-panel" style={{ minHeight: "420px" }}>
-            {(isLoadingQuestionDetail || !activeQuestionDetail) && (
-              <>
-                <div aria-hidden="true" style={{ display: "grid", gap: "0.5rem" }}>
-                  <div className="skeleton skeleton-text" style={{ width: "40%" }} />
-                </div>
-                <div className="input" style={{ height: "auto", padding: "1rem", minHeight: "84px" }}>
-                  <div className="skeleton skeleton-text lg" style={{ width: "90%" }} />
-                  <div style={{ height: "0.6rem" }} />
-                  <div className="skeleton skeleton-text" style={{ width: "75%" }} />
-                  <div style={{ height: "0.5rem" }} />
-                  <div className="skeleton skeleton-text" style={{ width: "60%" }} />
-                </div>
-                <div className="field">
-                  <label className="field-label">Choose an answer</label>
-                  <div className="poc-card-list">
-                    {[0, 1, 2, 3].map((idx) => (
-                      <button key={idx} type="button" className="poc-card-button" disabled>
-                        <div className="skeleton skeleton-text" style={{ width: `${70 - idx * 8}%` }} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {!isLoadingQuestionDetail && activeQuestionDetail && (
-              <>
-                <div className="input" style={{ height: "auto", padding: "1rem", minHeight: "84px" }}>
-                  {activeQuestionDetail.QuestionDescription}
-                </div>
-
-                <div className="field">
-                  <label className="field-label">Choose an answer</label>
-                  <div className="poc-card-list">
-                    {activeQuestionDetail.options.map((opt) => {
-                      const selected = selectedOptionByQuestionId[activeQuestionId] === opt.OptionID;
-                      return (
-                        <button
-                          key={opt.OptionID}
-                          type="button"
-                          className={`poc-card-button ${selected ? "is-selected" : ""}`}
-                          onClick={() => {
-                            const next = {
-                              ...selectedOptionByQuestionId,
-                              [activeQuestionId]: opt.OptionID,
-                            };
-                            setSelectedOptionByQuestionId(next);
-                            persistLocalProgress(next);
-                            setSubmissionResult(null);
-                          }}
-                        >
-                          <div className="poc-card-title">{opt.OptionText}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {questionIds && (
-              <div className="poc-row">
-                <button
-                  type="button"
-                  className="poc-link"
-                  onClick={() => setCurrentQuestionIndex((i) => Math.max(0, i - 1))}
-                  disabled={currentQuestionIndex === 0}
-                >
-                  Prev
-                </button>
-
-                {currentQuestionIndex < questionIds.length - 1 ? (
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setCurrentQuestionIndex((i) => Math.min(questionIds.length - 1, i + 1))}
-                    disabled={selectedOptionByQuestionId[activeQuestionId] == null}
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => submitMutation.mutate()}
-                    disabled={
-                      submitMutation.isPending ||
-                      questionIds.some((qid) => selectedOptionByQuestionId[qid] == null)
-                    }
-                  >
-                    {submitMutation.isPending ? "Submitting..." : "Submit"}
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="poc-qa-progress-track" aria-hidden="true">
+              <span style={{ width: `${progressPercent}%` }} />
+            </div>
           </div>
-        )}
-      </>
+
+          <div className="poc-qa-question-text">{questionTextContent}</div>
+        </section>
+
+        <section className="poc-qa-answer-panel">
+          <div className="poc-qa-options">{renderOptionButtons()}</div>
+
+          <div className="poc-qa-controls">
+            <button
+              type="button"
+              className="poc-qa-prev"
+              onClick={() => setCurrentQuestionIndex((i) => Math.max(0, i - 1))}
+              disabled={isQuestionBankLoading || currentQuestionIndex === 0}
+            >
+              ← Prev
+            </button>
+
+            <button
+              type="button"
+              className="poc-qa-submit"
+              onClick={handlePrimaryAction}
+              disabled={primaryDisabled}
+            >
+              {primaryLabel}
+            </button>
+          </div>
+        </section>
+      </div>
     );
   };
 
@@ -470,58 +524,26 @@ export function SubjectsPage({ onBack, user, onBookmarked }: SubjectsPageProps) 
     if (!selectedSubject) return renderSubjectStep();
     if (!selectedCourse) return renderCourseStep();
     if (isViewingCourseContent) return renderCourseContentPage();
+    if (isResultOpen && submissionResult) return renderResultPage();
     return renderQuestionStep();
   };
 
+  const isQuestionMode = Boolean(selectedSubject && selectedCourse && !isViewingCourseContent && !isResultOpen);
+  const isResultMode = Boolean(isResultOpen && submissionResult);
+  const isFullscreenMode = isQuestionMode || isResultMode;
+
   return (
-    <div className="page-shell" data-name="poc-subjects">
+    <div
+      className={`page-shell poc-explore-root ${isFullscreenMode ? "is-fullscreen-mode" : ""} ${
+        isQuestionMode ? "is-qa-mode" : ""
+      } ${isResultMode ? "is-result-mode" : ""}`}
+      data-name="poc-subjects"
+    >
       <div className="page-content">
-        {isResultOpen && submissionResult && (
-          <div
-            className="modal-backdrop"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Course result"
-            onClick={() => setIsResultOpen(false)}
-          >
-            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2 className="poc-section-title">Course result</h2>
-                <button type="button" className="poc-link" onClick={() => setIsResultOpen(false)}>
-                  Close
-                </button>
-              </div>
-
-              <div className="poc-panel" style={{ padding: 0, border: "none", background: "transparent" }}>
-                <div className="poc-row">
-                  <div className="poc-card-title">
-                    Score: {submissionResult.correct}/{submissionResult.total}
-                  </div>
-                  <div className="poc-card-subtitle" style={{ color: "#fff41d", fontWeight: 700 }}>
-                    Best: {submissionResult.best_score}/{submissionResult.total}
-                  </div>
-                </div>
-                <div className="poc-card-subtitle">
-                  {submissionResult.improved ? "New personal best!" : "Try again to beat your best score."}
-                </div>
-              </div>
-
-              <div className="poc-row" style={{ justifyContent: "flex-end" }}>
-                <button type="button" className="btn btn-ghost" onClick={backToCourses}>
-                  Back to courses
-                </button>
-                <button type="button" className="btn btn-primary" onClick={backToDashboard}>
-                  Back to dashboard
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="poc-layout">
-          {renderSidebar()}
-          <div>{renderMain()}</div>
+        <div className={`poc-explore-main-wrapper ${isFullscreenMode ? "is-fullscreen-mode" : ""}`}>
+          <div className={`poc-explore-main ${isFullscreenMode ? "is-fullscreen-mode" : ""}`}>{renderMain()}</div>
         </div>
+        <img src={chickenImg} alt="" aria-hidden="true" className="poc-explore-chicken" />
       </div>
     </div>
   );

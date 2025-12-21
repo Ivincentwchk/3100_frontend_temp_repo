@@ -30,6 +30,8 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
       onBookmarked?.();
     },
   });
+  const cardHeight = 220;
+
   const {
     data: subjects,
     isLoading,
@@ -42,12 +44,46 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
 
   if (isLoading) {
     return (
-      <div className="poc-card-list" aria-hidden="true">
-        {[0, 1, 2].map((idx) => (
-          <div key={idx} className="poc-card-button" style={{ cursor: "default" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <div className="skeleton skeleton-text lg" style={{ width: `${80 - idx * 10}%` }} />
-              <div className="skeleton skeleton-text" style={{ width: `${60 - idx * 8}%` }} />
+      <div className="poc-skeleton-grid" aria-hidden="true">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <div key={idx} className="home-course-card is-loading" style={{ width: "100%", height: cardHeight }}>
+            <div className="home-course-card-bg" />
+            <div className="home-course-colorbar" aria-hidden="true" style={{ height: cardHeight }}>
+              <div className="home-course-colorbar-yellow" style={{ height: cardHeight }} />
+              <div className="home-course-colorbar-gradient" style={{ height: cardHeight }} />
+            </div>
+            <div className="home-course-colorbar-label" aria-hidden="true">
+              <div className="home-course-colorbar-label-text skeleton skeleton-text" style={{ width: "80%" }} />
+            </div>
+            <div className="home-course-icon" aria-hidden="true" style={{ top: 18 }}>
+              <div className="skeleton skeleton-text" style={{ width: 34, height: 34, borderRadius: "50%" }} />
+            </div>
+            <div className="home-course-title" style={{ textAlign: "left", top: 76 }}>
+              <div className="skeleton skeleton-text lg" style={{ width: "85%" }} />
+              <div className="skeleton skeleton-text" style={{ width: "60%", marginTop: "0.4rem" }} />
+            </div>
+            <div
+              className="helper-text"
+              style={{ position: "absolute", left: 122, top: 118, width: "calc(100% - 150px)" }}
+            >
+              <div className="skeleton skeleton-text" style={{ width: "70%" }} />
+            </div>
+            <div
+              className="home-course-continue"
+              style={{
+                position: "absolute",
+                left: 122,
+                top: cardHeight - 58,
+                width: "calc(100% - 150px)",
+                height: 40,
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div className="skeleton skeleton-text" style={{ width: "60%" }} />
             </div>
           </div>
         ))}
@@ -71,26 +107,63 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
   }
 
   return (
-    <div className="poc-card-list">
-      {subjects.map((subject: Subject) => (
-        <button
-          key={subject.SubjectID}
-          type="button"
-          className="poc-card-button"
-          onClick={() => onSelect?.(subject)}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", textAlign: "left" }}>
-              {subject.icon_svg_url && (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0.85rem" }}>
+      {subjects.map((subject: Subject) => {
+        const bookmarked = isBookmarked(subject.SubjectID);
+
+        return (
+          <div
+            key={subject.SubjectID}
+            className="home-course-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelect?.(subject)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect?.(subject);
+              }
+            }}
+            style={{ width: "100%", height: cardHeight, cursor: "pointer" }}
+          >
+            <div className="home-course-card-bg" />
+
+            <div className="home-course-colorbar" aria-hidden="true" style={{ height: cardHeight }}>
+              <div className="home-course-colorbar-yellow" style={{ height: cardHeight }} />
+              <div className="home-course-colorbar-gradient" style={{ height: cardHeight }} />
+            </div>
+
+            <div className="home-course-colorbar-label" aria-hidden="true">
+              <div className="home-course-colorbar-label-text">
+                // {String(subject.SubjectName).toUpperCase()}
+              </div>
+            </div>
+
+            <div className="home-course-icon" aria-hidden="true" style={{ top: 18 }}>
+              {subject.icon_svg_url ? (
                 <img
                   src={subject.icon_svg_url}
                   alt=""
                   aria-hidden="true"
-                  style={{ width: 26, height: 26, marginBottom: "0.25rem", filter: "grayscale(1) brightness(1.1)" }}
+                  className="icon-white"
+                  style={{ width: 34, height: 34 }}
                 />
+              ) : (
+                <span className="home-course-icon-mark" style={{ fontSize: 24 }}>
+                  ⬣
+                </span>
               )}
-              <div className="poc-card-title">{subject.SubjectName}</div>
-              <div className="poc-card-subtitle">{subject.SubjectDescription}</div>
+            </div>
+
+            <div className="home-course-title" style={{ textAlign: "left", top: 76 }}>
+              {subject.SubjectName}
+            </div>
+
+            <div
+              className="helper-text"
+              style={{ position: "absolute", left: 122, top: 118, width: "calc(100% - 150px)" }}
+            >
+              {subject.SubjectDescription}
             </div>
 
             <button
@@ -98,32 +171,35 @@ export function SubjectsList({ onSelect, user, onBookmarked }: SubjectsListProps
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (isBookmarked(subject.SubjectID)) {
+                if (bookmarked) {
                   unbookmarkMutation.mutate(subject.SubjectID);
                 } else {
                   bookmarkMutation.mutate(subject.SubjectID);
                 }
               }}
-              aria-label="Bookmark subject"
-              title="Bookmark subject"
+              aria-label={bookmarked ? "Unbookmark subject" : "Bookmark subject"}
+              title={bookmarked ? "Unbookmark" : "Bookmark"}
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.06)",
-                color: isBookmarked(subject.SubjectID) ? "#fff41d" : "#9ca3af",
+                position: "absolute",
+                right: 14,
+                top: 12,
+                width: 32,
+                height: 32,
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.18)",
+                background: bookmarked ? "#c3bb1a" : "rgba(255,255,255,0.06)",
+                color: bookmarked ? "#111111" : "#ffffff",
                 display: "grid",
                 placeItems: "center",
                 cursor: "pointer",
-                flex: "0 0 auto",
+                fontWeight: 800,
               }}
             >
               ★
             </button>
           </div>
-        </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
