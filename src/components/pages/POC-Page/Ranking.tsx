@@ -1,5 +1,8 @@
 import trophy from "../../../assets/trophy.svg"
 import chicken from "../../../assets/chicken.png"
+import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import axios from "axios"
 
 interface RankingEntry {
   rank: number;
@@ -7,27 +10,74 @@ interface RankingEntry {
   score: number;
 }
 
-const mockRankingData: RankingEntry[] = [
-  { rank: 1, username: 'Una', score: 114514 },
-  { rank: 2, username: 'TadokoroKouji', score: 1919 },
-  { rank: 3, username: 'Username', score: 810 },
-  { rank: 4, username: 'GitPushNightmare', score: 514 },
-  { rank: 5, username: 'GitDestroyer', score: 114 },
-  { rank: 6, username: 'DockerFanz', score: 100 },
-  { rank: 7, username: 'GitMergeBoom', score: 87 },
-  { rank: 8, username: 'XmasEveCoding', score: 69 },
-  { rank: 8, username: 'NoOne', score: 69 },
-  { rank: 10, username: 'SomeOne', score: 42 },
-  { rank: 11, username: 'RickAstley', score: 0 },
-];
+// const mockRankingData: RankingEntry[] = [
+//   { rank: 1, username: 'Una', score: 114514 },
+//   { rank: 2, username: 'TadokoroKouji', score: 1919 },
+//   { rank: 3, username: 'Username', score: 810 },
+//   { rank: 4, username: 'GitPushNightmare', score: 514 },
+//   { rank: 5, username: 'GitDestroyer', score: 114 },
+//   { rank: 6, username: 'DockerFanz', score: 100 },
+//   { rank: 7, username: 'GitMergeBoom', score: 87 },
+//   { rank: 8, username: 'XmasEveCoding', score: 69 },
+//   { rank: 8, username: 'NoOne', score: 69 },
+//   { rank: 10, username: 'SomeOne', score: 42 },
+//   { rank: 11, username: 'RickAstley', score: 0 },
+// ];
 
 const Ranking = () => {
+  interface ApiRankingEntry {
+    user_name: string;
+    rank: number;
+    score: number;
+  }
+
+  const getStoredToken = (): string | null => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
+  const { data, isLoading, isError, error } = useQuery<RankingEntry[]>({
+    queryKey: ["globalRanking"],
+    queryFn: async () => {
+      //const token = getStoredToken();
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY2MzIwMjEwLCJpYXQiOjE3NjYzMTMwMTAsImp0aSI6IjQyZmY4M2VhNjNiZjQ2YzBhYTA1MDBjMzRjMDBkOGVjIiwidXNlcklEIjoiMDY1OWJiYjEtYWFjNS00NzNkLTg3ZDUtNzFhYmQxNGQzNGY0In0.2GG-J9VqxX9YBxPfCQyUjs-SgQ9-u7ZWCDTWIWNul7o"
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await axios.get<ApiRankingEntry[]>(
+        "http://localhost:8000/api/accounts/rank/",
+        { headers }
+      );
+
+      const apiData = response.data ?? [];
+      return apiData.map<RankingEntry>((item) => ({
+        rank: item.rank,
+        username: item.user_name,
+        score: item.score,
+      }));
+    },
+    staleTime: 60_000,
+  });
+
+  useEffect(() => {
+    if (isLoading) {
+      console.log("Fetching global ranking...");
+    } else if (isError) {
+      console.error("Error fetching global ranking", error);
+    } else if (data) {
+      console.log("Global ranking data:", data);
+    }
+  }, [data, isLoading, isError, error]);
+
   return (
     <div className="max-w-screen flex flex-col justify-center relative overflow-hidden">
       <h2 className="flex justify-center text-center text-5xl font-bold mb-8 mt-16">
         <img src={trophy} alt="" className="w-16" />
         <span>Welcome to Leaderboard!</span>
-        </h2>
+      </h2>
       <p className="text-center text-xl font-semibold mb-6 text-[#cccccc]">See how you stack up against other developers.</p>
       <ul
         id="target"
@@ -40,7 +90,7 @@ const Ranking = () => {
           </div>
           <span className="ml-4 font-mono text-right text-2xl min-w-[4rem] font-bold">Score</span>
         </li>
-        {mockRankingData.map((entry) => {
+        {(data ?? []).map((entry) => {
           const rankColor =
             entry.rank === 1
               ? '#fff41d'
