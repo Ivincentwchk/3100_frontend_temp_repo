@@ -53,7 +53,7 @@ export function SubjectsList({ onSelect, user, onBookmarked, autoSelectSubjectId
 
   useEffect(() => {
     if (hasAutoSelectedRef.current) return;
-    if (!autoSelectSubjectId) return;
+    if (autoSelectSubjectId == null) return;
     if (!subjects?.length) return;
 
     const target = subjects.find((subject) => subject.SubjectID === autoSelectSubjectId);

@@ -10,19 +10,6 @@ interface RankingEntry {
   score: number;
 }
 
-// const mockRankingData: RankingEntry[] = [
-//   { rank: 1, username: 'Una', score: 114514 },
-//   { rank: 2, username: 'TadokoroKouji', score: 1919 },
-//   { rank: 3, username: 'Username', score: 810 },
-//   { rank: 4, username: 'GitPushNightmare', score: 514 },
-//   { rank: 5, username: 'GitDestroyer', score: 114 },
-//   { rank: 6, username: 'DockerFanz', score: 100 },
-//   { rank: 7, username: 'GitMergeBoom', score: 87 },
-//   { rank: 8, username: 'XmasEveCoding', score: 69 },
-//   { rank: 8, username: 'NoOne', score: 69 },
-//   { rank: 10, username: 'SomeOne', score: 42 },
-//   { rank: 11, username: 'RickAstley', score: 0 },
-// ];
 
 const Ranking = () => {
   interface ApiRankingEntry {
@@ -72,7 +59,7 @@ const Ranking = () => {
   }, [data, isLoading, isError, error]);
 
   return (
-    <div className="max-w-screen flex flex-col justify-center relative overflow-hidden">
+    <div className="max-w-screen flex flex-col justify-center relative overflow-hidden px-4">
       <h2 className="flex justify-center text-center text-5xl font-bold mb-8 mt-16">
         <img src={trophy} alt="" className="w-16" />
         <span>Welcome to Leaderboard!</span>
@@ -80,7 +67,7 @@ const Ranking = () => {
       <p className="text-center text-xl font-semibold mb-6 text-[#cccccc]">See how you stack up against other developers.</p>
       <ul
         id="target"
-        className="w-[45%] mx-auto rounded-lg shadow divide-y-2 divide-[#000]"
+        className="w-full max-w-3xl mx-auto rounded-lg shadow divide-y-2 divide-[#000] overflow-x-auto"
       >
         <li className="flex items-center px-8 py-6 bg-[#1c1c1c]">
           <div className="flex flex-1  items-center gap-3">

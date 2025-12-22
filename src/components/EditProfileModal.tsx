@@ -104,7 +104,7 @@ export function EditProfileModal({ user, onClose, onUpdated }: EditProfileModalP
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Edit Profile">
-      <div className="modal-card">
+      <div className="modal-card edit-profile-modal">
         <div className="modal-header">
           <div>
             <div className="poc-section-title">Edit Profile</div>
