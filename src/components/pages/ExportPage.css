@@ -24,6 +24,185 @@
   color: #cccccc;
 }
 
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.subject-grid-empty {
+  text-align: center;
+  color: #bbbbbb;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.subject-card {
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.25rem;
+  color: #f1f1f1;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.subject-card:hover {
+  border-color: rgba(195, 187, 26, 0.4);
+  transform: translateY(-2px);
+}
+
+.subject-card.active {
+  border-color: rgba(195, 187, 26, 0.9);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.subject-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.subject-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.subject-card-description {
+  font-size: 0.9rem;
+  color: #b7b7b7;
+  line-height: 1.4;
+}
+
+.subject-chip {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.23);
+}
+
+.subject-chip-ok {
+  border-color: rgba(195, 187, 26, 0.8);
+  color: #c3bb1a;
+}
+
+.subject-chip-warn {
+  border-color: rgba(255, 0, 0, 0.4);
+  color: #ff6b6b;
+}
+
+.page-export-stage {
+  background: #ffffff;
+  color: #111111;
+  border-radius: 30px;
+  padding: 2.5rem;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.35);
+}
+
+.page-export-stage .status-text {
+  color: #333333;
+}
+
+.page-export-stage .status-text.ok {
+  color: #15803d;
+}
+
+.page-export-stage .status-text.warn {
+  color: #b91c1c;
+}
+
+.page-export-stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.stage-subject-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #777777;
+}
+
+.stage-subject-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0.3rem 0;
+}
+
+.stage-progress {
+  color: #555555;
+}
+
+.stage-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.page-export-stage-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.stage-section-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stage-helper {
+  color: #777777;
+  line-height: 1.6;
+}
+
+.stage-course-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.stage-course-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.04);
+  font-weight: 500;
+}
+
+.stage-course-score {
+  font-weight: 700;
+  color: #c3bb1a;
+}
+
+.stage-certificate-summary {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #c3bb1a;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.75rem;
+}
+
 .page-export-certificate-card {
   position: relative;
   margin-bottom: 2rem;

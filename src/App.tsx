@@ -15,6 +15,8 @@ import type { AuthUser } from "./feature/auth/api";
 import { useEffect, useState, type CSSProperties } from "react";
 import Ranking from "./components/pages/POC-Page/Ranking";
 import { ExportPage } from "./components/pages/ExportPage";
+import Cert from "./components/pages/Cert";
+import type { CertificateMetadata } from "./feature/cert/types";
 
 type Page = "start" | "login" | "register" | "ranking";
 
@@ -46,6 +48,8 @@ export default function App() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [autoSelectSubjectId, setAutoSelectSubjectId] = useState<number | null>(null);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
+  const [certificateData, setCertificateData] = useState<CertificateMetadata | null>(null);
+  const [isCertViewerOpen, setIsCertViewerOpen] = useState(false);
 
   const [firstLogin, setFirstLogin] = useState(false);
 
@@ -159,8 +163,12 @@ export default function App() {
       setDashboardView("subjects");
     } else if (page === "profile") {
       setDashboardView("user_info");
+    } else if (page === "export") {
+      setCurrentPage("start");
     }
-    // ranking and export can be added when those pages exist
+    if (page === "export") {
+      setDashboardView("home");
+    }
   };
 
   const handleGetStarted = () => {
@@ -206,6 +214,42 @@ export default function App() {
       </div>
     );
   }
+
+  const certViewer =
+    isCertViewerOpen ? (
+      <div
+        role="dialog"
+        aria-modal="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.65)",
+          zIndex: 20000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+        }}
+        onClick={() => setIsCertViewerOpen(false)}
+      >
+        <div
+          style={{
+            width: "min(1280px, 100%)",
+            maxHeight: "90vh",
+            overflow: "auto",
+            borderRadius: 16,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+            <button type="button" className="btn btn-ghost" onClick={() => setIsCertViewerOpen(false)}>
+              Close
+            </button>
+          </div>
+          <Cert certificate={certificateData} />
+        </div>
+      </div>
+    ) : null;
 
   if (!loading && isResetRoute) {
     return (
@@ -284,7 +328,15 @@ export default function App() {
         {activePage === "ranking" ? (
           <Ranking />
         ) : activePage === "export" ? (
-          <ExportPage user={user} refreshUser={refreshUser} />
+          <ExportPage
+            user={user}
+            refreshUser={refreshUser}
+            onNavigateToCert={() => setIsCertViewerOpen(true)}
+            onCertificateReady={(cert) => {
+              setCertificateData(cert);
+              setIsCertViewerOpen(true);
+            }}
+          />
         ) : dashboardView === "home" ? (
           <HomePage
             user={user}
@@ -320,6 +372,7 @@ export default function App() {
             onOpenAchievements={() => setDashboardView("achievements")}
           />
         )}
+        {certViewer}
       </div>
     );
   }
@@ -330,7 +383,10 @@ export default function App() {
       <Header onLogoClick={handleLogoClick} />
       <>
         {currentPage === "start" && (
-          <StartPage onGetStarted={handleGetStarted} onLogin={navigateToLogin} />
+          <StartPage
+            onGetStarted={handleGetStarted}
+            onLogin={navigateToLogin}
+          />
         )}
         {currentPage === "login" && (
           <Login onSignUp={navigateToRegister} handleLogin={handleLogin} authError={error} />
@@ -339,6 +395,7 @@ export default function App() {
           <Register onLogin={navigateToLogin} />
         )}
       </>
+      {certViewer}
     </div>
   );
 }

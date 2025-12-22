@@ -4,9 +4,10 @@ import "./StartPage.css";
 interface StartPageProps {
   onGetStarted: () => void;
   onLogin: () => void;
+  onViewCert?: () => void;
 }
 
-export function StartPage({ onGetStarted, onLogin }: StartPageProps) {
+export function StartPage({ onGetStarted, onLogin, onViewCert }: StartPageProps) {
   return (
     <div className="start-page" data-name="start page">
       <div className="start-page__inner">
