@@ -67,11 +67,19 @@ export const useAuth = (): UseAuthResult => {
       if (!storedToken) {
         return null;
       }
-      return getMe(storedToken);
+      try {
+        return await getMe(storedToken);
+      } catch (err) {
+        const axiosErr = err as AxiosError;
+        if (axiosErr?.response?.status === 401) {
+          return null;
+        }
+        throw err;
+      }
     },
     enabled: token != null,
     staleTime: 60_000,
-    retry: 1,
+    retry: false,
   });
 
   useEffect(() => {

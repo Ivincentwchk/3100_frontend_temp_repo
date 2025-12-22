@@ -18,6 +18,7 @@ import Ranking from "./components/pages/POC-Page/Ranking";
 import { ExportGatePage } from "./components/pages/ExportGatePage";
 import Cert from "./components/pages/Cert";
 import type { CertificateMetadata } from "./feature/cert/types";
+import { ErrorPage } from "./components/pages/ErrorPage";
 
 type Page = "start" | "login" | "register" | "ranking";
 
@@ -43,6 +44,14 @@ function setFirstLoginCookie(keyBase: string, value: boolean) {
 
 export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
+
+  if (import.meta.env.DEV && typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const debugError = params.get("debugError");
+    if (debugError) {
+      return <ErrorPage code={debugError} />;
+    }
+  }
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [activePage, setActivePage] = useState<NavPage>("home");
   const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements" | "profile" | "account_info">("home");
