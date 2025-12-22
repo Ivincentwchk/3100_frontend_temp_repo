@@ -1,7 +1,8 @@
 import type { AuthUser } from "../feature/auth/api";
 import { changeMyPassword } from "../feature/auth/api";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ProfileAvatar } from "./ProfileAvatar";
+import { validatePassword, isPasswordValid, doPasswordsMatch } from "../feature/auth/validation";
 
 interface AccountInfoProps {
   user: AuthUser;
@@ -20,6 +21,9 @@ function AccountInfo({ user, onEditProfile }: AccountInfoProps) {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [statusTone, setStatusTone] = useState<"ok" | "warn">("ok");
 
+  const passwordValidation = useMemo(() => validatePassword(newPassword), [newPassword]);
+  const passwordsMatch = useMemo(() => doPasswordsMatch(newPassword, confirmPassword), [newPassword, confirmPassword]);
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword.trim()) {
@@ -27,12 +31,12 @@ function AccountInfo({ user, onEditProfile }: AccountInfoProps) {
       setStatusMessage("Current password is required.");
       return;
     }
-    if (newPassword.length < 8) {
+    if (!isPasswordValid(newPassword)) {
       setStatusTone("warn");
-      setStatusMessage("Password must be at least 8 characters long.");
+      setStatusMessage("Password is too weak. Add uppercase, numbers, or symbols.");
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (!passwordsMatch) {
       setStatusTone("warn");
       setStatusMessage("Passwords do not match.");
       return;
@@ -115,6 +119,26 @@ function AccountInfo({ user, onEditProfile }: AccountInfoProps) {
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={submitting}
               />
+              <div className="password-strength">
+                <div className="strength-bars">
+                  <span className={`bar ${passwordValidation.strength ? "active" : ""} ${passwordValidation.strength || ""}`} />
+                  <span
+                    className={`bar ${
+                      passwordValidation.strength === "medium" || passwordValidation.strength === "strong" ? "active" : ""
+                    } ${passwordValidation.strength || ""}`}
+                  />
+                  <span
+                    className={`bar ${passwordValidation.strength === "strong" ? "active" : ""} ${passwordValidation.strength || ""}`}
+                  />
+                </div>
+                <span className={`strength-label ${passwordValidation.strength || ""}`}>
+                  {passwordValidation.strength === "weak" && "Weak"}
+                  {passwordValidation.strength === "medium" && "Medium"}
+                  {passwordValidation.strength === "strong" && "Strong"}
+                  {!passwordValidation.strength && "Enter password"}
+                </span>
+              </div>
+              <p className="helper-text">Use at least 8 characters with uppercase, lowercase, numbers, and symbols.</p>
             </div>
             <div className="field">
               <label className="field-label">Confirm password</label>
@@ -125,6 +149,7 @@ function AccountInfo({ user, onEditProfile }: AccountInfoProps) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={submitting}
               />
+              {!passwordsMatch && confirmPassword && <p className="status-text warn">Passwords do not match.</p>}
             </div>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
               Update Password

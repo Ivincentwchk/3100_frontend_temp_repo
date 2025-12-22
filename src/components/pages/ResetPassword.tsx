@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { confirmPasswordReset } from "../../feature/auth/api";
+import { validatePassword, isPasswordValid, doPasswordsMatch } from "../../feature/auth/validation";
 
 const getQueryParam = (key: string): string | null => {
   if (typeof window === "undefined") return null;
@@ -11,13 +12,16 @@ export function ResetPassword() {
   const tokenFromUrl = useMemo(() => getQueryParam("token") ?? "", []);
   const emailFromUrl = useMemo(() => getQueryParam("email") ?? "", []);
 
-  const [token, setToken] = useState(tokenFromUrl);
+  const [token] = useState(tokenFromUrl);
   const [email, setEmail] = useState(emailFromUrl);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [statusTone, setStatusTone] = useState<"ok" | "warn">("ok");
+
+  const passwordValidation = useMemo(() => validatePassword(password), [password]);
+  const passwordsMatch = useMemo(() => doPasswordsMatch(password, confirmPassword), [password, confirmPassword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,12 +30,12 @@ export function ResetPassword() {
       setStatusMessage("Missing token or email. Please ensure you used the reset link from your email.");
       return;
     }
-    if (!password || password.length < 8) {
+    if (!isPasswordValid(password)) {
       setStatusTone("warn");
-      setStatusMessage("Password must be at least 8 characters long.");
+      setStatusMessage("Password is too weak. Add uppercase, numbers, or symbols.");
       return;
     }
-    if (password !== confirmPassword) {
+    if (!passwordsMatch) {
       setStatusTone("warn");
       setStatusMessage("Passwords do not match.");
       return;
@@ -92,6 +96,28 @@ export function ResetPassword() {
               className="input"
               required
             />
+            <div className="password-strength">
+              <div className="strength-bars">
+                <span className={`bar ${passwordValidation.strength ? "active" : ""} ${passwordValidation.strength || ""}`} />
+                <span
+                  className={`bar ${
+                    passwordValidation.strength === "medium" || passwordValidation.strength === "strong" ? "active" : ""
+                  } ${passwordValidation.strength || ""}`}
+                />
+                <span
+                  className={`bar ${
+                    passwordValidation.strength === "strong" ? "active" : ""
+                  } ${passwordValidation.strength || ""}`}
+                />
+              </div>
+              <span className={`strength-label ${passwordValidation.strength || ""}`}>
+                {passwordValidation.strength === "weak" && "Weak"}
+                {passwordValidation.strength === "medium" && "Medium"}
+                {passwordValidation.strength === "strong" && "Strong"}
+                {!passwordValidation.strength && "Enter password"}
+              </span>
+            </div>
+            <p className="helper-text">Use at least 8 characters with uppercase, lowercase, numbers, and symbols.</p>
           </div>
 
           <div className="field">
@@ -106,6 +132,7 @@ export function ResetPassword() {
               className="input"
               required
             />
+            {!passwordsMatch && confirmPassword && <p className="status-text warn">Passwords do not match.</p>}
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={submitting}>
