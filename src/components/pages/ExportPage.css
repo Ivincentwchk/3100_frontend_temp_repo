@@ -1,0 +1,182 @@
+.page-export-root {
+  width: 100%;
+}
+
+.page-export-container {
+  max-width: 550px;
+  margin-inline: auto;
+}
+
+.page-export-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-export-title {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 40px;
+  color: #c3bb1a;
+}
+
+.page-export-subtitle {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 20px;
+  color: #cccccc;
+}
+
+.page-export-certificate-card {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.page-export-certificate-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25px;
+  border-radius: 12px;
+  background-color: #c3bb1a;
+}
+
+.page-export-certificate-main {
+  margin-left: 25px;
+  background-color: #1c1c1c;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 102, 102, 0.35);
+  padding: 2rem;
+}
+
+.page-export-stat-card {
+  background-color: #121212;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.page-export-download-button {
+  width: 100%;
+  height: 56px;
+  border-radius: 12px;
+  background-color: #666666;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: background-color 0.15s ease;
+}
+
+.page-export-download-button:hover {
+  background-color: #4f4f4f;
+}
+
+.page-export-locked-root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.page-export-locked-container {
+  max-width: 550px;
+  width: 100%;
+}
+
+.page-export-locked-header-bar {
+  height: 25px;
+  border-radius: 12px 12px 0 0;
+  background-color: #c3bb1a;
+}
+
+.page-export-locked-card {
+  background-color: #1c1c1c;
+  border-radius: 0 0 12px 12px;
+  border-width: 0 1px 1px 1px;
+  border-style: solid;
+  border-color: rgba(102, 102, 102, 0.35);
+  padding: 3rem;
+}
+
+.page-export-locked-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 9999px;
+  border: 2px solid rgba(195, 187, 26, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  margin-bottom: 2rem;
+  background: rgba(195, 187, 26, 0.06);
+}
+
+.page-export-locked-input {
+  width: 100%;
+  height: 56px;
+  padding-inline: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(102, 102, 102, 0.35);
+  background-color: #111111;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.page-export-locked-input::placeholder {
+  color: rgba(102, 102, 102, 0.6);
+}
+
+.page-export-locked-error {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #ef4444;
+  margin-top: 0.5rem;
+}
+
+.page-export-locked-button {
+  width: 100%;
+  height: 56px;
+  border-radius: 12px;
+  background-color: #c3bb1a;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: background-color 0.15s ease;
+}
+
+.page-export-locked-button:hover {
+  background-color: #a8a016;
+}
+
+.page-export-inline-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.page-export-secondary-action {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+.page-export-secondary-action:hover {
+  border-color: rgba(195, 187, 26, 0.8);
+}

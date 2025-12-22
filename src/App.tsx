@@ -14,6 +14,7 @@ import { GridBackground } from "./components/GridBackground";
 import type { AuthUser } from "./feature/auth/api";
 import { useEffect, useState, type CSSProperties } from "react";
 import Ranking from "./components/pages/POC-Page/Ranking";
+import { ExportPage } from "./components/pages/ExportPage";
 
 type Page = "start" | "login" | "register" | "ranking";
 
@@ -282,6 +283,8 @@ export default function App() {
         )}
         {activePage === "ranking" ? (
           <Ranking />
+        ) : activePage === "export" ? (
+          <ExportPage user={user} refreshUser={refreshUser} />
         ) : dashboardView === "home" ? (
           <HomePage
             user={user}
