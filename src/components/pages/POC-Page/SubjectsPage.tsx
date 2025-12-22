@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 import "./SubjectsPage.css";
 import "./POC.css";
 import chickenImg from "../../../assets/chicken.png";
@@ -33,6 +33,7 @@ interface SubjectsPageProps {
 const TOTAL_QUESTIONS_PER_COURSE = 5;
 
 export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, onAutoSelectHandled }: SubjectsPageProps) {
+  const queryClient = useQueryClient();
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseListItem | null>(null);
   const [isViewingCourseContent, setIsViewingCourseContent] = useState(false);
@@ -95,10 +96,20 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
     staleTime: 60_000,
   });
 
+  const handleBookmarkedCascade = useCallback(() => {
+    onBookmarked?.();
+    queryClient.invalidateQueries({ queryKey: ["me"] });
+  }, [onBookmarked, queryClient]);
+
+  const invalidateProgressQueries = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["me"] });
+    queryClient.invalidateQueries({ queryKey: ["completedCourseScores"] });
+  }, [queryClient]);
+
   const setBookmarkedSubjectMutation = useMutation({
     mutationFn: (subjectIdToSet: number) => setBookmarkedSubject(subjectIdToSet),
     onSuccess: () => {
-      onBookmarked?.();
+      handleBookmarkedCascade();
     },
   });
 
@@ -162,6 +173,7 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
     onSuccess: (data) => {
       setSubmissionResult(data);
       setIsResultOpen(true);
+      invalidateProgressQueries();
     },
   });
 
@@ -182,7 +194,7 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
     setIsViewingCourseContent(false);
     resetAttemptState();
 
-    if (subject.SubjectID) {
+    if (subject.SubjectID != null) {
       setBookmarkedSubjectMutation.mutate(subject.SubjectID);
     }
   };
@@ -226,7 +238,7 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
           <div className="poc-result-course-desc">{courseDetail?.CourseDescription ?? ""}</div>
 
           <button type="button" className="poc-result-primary" onClick={startNewLesson}>
-            Start New lesson
+            Start New Quiz
           </button>
         </section>
 
@@ -387,7 +399,7 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
                 Change course
               </button>
               <button type="button" className="btn btn-primary" onClick={() => setIsViewingCourseContent(false)}>
-                Start Practice
+                Start Quiz
               </button>
             </div>
           </section>

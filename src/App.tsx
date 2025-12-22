@@ -347,7 +347,6 @@ export default function App() {
         ) : dashboardView === "subjects" ? (
           <SubjectsPage
             onBack={() => {
-              refreshUser();
               setAutoSelectSubjectId(null);
               setActivePage("home");
               setDashboardView("home");

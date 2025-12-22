@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { AxiosError } from "axios";
 import { loginUser, registerUser, getMe, checkAvailability, type AuthUser, type LoginResponse, type RegisterResponse, type AvailabilityResponse } from "./api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface UseAuthResult {
   user: AuthUser | null;
@@ -52,66 +53,49 @@ const extractErrorMessage = (err: unknown, fallback: string): string => {
 };
 
 export const useAuth = (): UseAuthResult => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
+
+  const {
+    data: user,
+    isLoading: loading,
+  } = useQuery<AuthUser | null>({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const storedToken = getStoredToken();
+      if (!storedToken) {
+        return null;
+      }
+      return getMe(storedToken);
+    },
+    enabled: token != null,
+    staleTime: 60_000,
+    retry: 1,
+  });
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
+    if (user === undefined) {
       return;
     }
-    
-    const validateToken = async () => {
-      try {
-        // Add timeout to prevent infinite waiting
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Token validation timeout')), 10000); // 10 second timeout
-        });
-        
-        const userData = await Promise.race([
-          getMe(token) as Promise<AuthUser>, 
-          timeoutPromise as Promise<never>
-        ]);
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (err) {
-        // Token invalid, clear it
-        clearStoredToken();
-        setToken(null);
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-      setLoading(false);
-    };
-    validateToken();
-  }, [token]);
+    if (user === null && token) {
+      clearStoredToken();
+      setToken(null);
+      queryClient.setQueryData(["me"], null);
+    }
+  }, [user, token, queryClient]);
+
+  const safeUser = user ?? null;
+  const isAuthenticated = Boolean(user && token);
 
   const checkUserAvailability = useCallback((user_name?: string, email?: string) => {
     return checkAvailability({ user_name, email });
   }, []);
 
   const refreshUser = useCallback(async () => {
-    const storedToken = getStoredToken();
-    if (!storedToken) {
-      return null;
-    }
-
-    try {
-      const userData = await getMe(storedToken);
-      setUser(userData);
-      setIsAuthenticated(true);
-      return userData;
-    } catch {
-      clearStoredToken();
-      setToken(null);
-      setUser(null);
-      setIsAuthenticated(false);
-      return null;
-    }
-  }, []);
+    await queryClient.invalidateQueries({ queryKey: ["me"] });
+    return queryClient.getQueryData<AuthUser | null>(["me"]) ?? null;
+  }, [queryClient]);
 
   const handleRegister = async (user_name: string, email: string, password: string, License?: string): Promise<RegisterResponse> => {
     try {
@@ -127,7 +111,6 @@ export const useAuth = (): UseAuthResult => {
   const handleLogin = async (user_name: string, password: string, rememberMe = false): Promise<LoginResponse> => {
     try {
       setError(null);
-      setLoading(true); // Prevent UI flicker during token validation
       const data = await loginUser(user_name, password);
 
       // Clear both storages first
@@ -141,12 +124,11 @@ export const useAuth = (): UseAuthResult => {
         sessionStorage.setItem(TOKEN_STORAGE_KEY, data.access);
       }
 
-      // Only set token - useEffect will validate and set user/auth state
       setToken(data.access);
+      await queryClient.invalidateQueries({ queryKey: ["me"] });
       return data;
     } catch (err) {
       setError("Invalid username or password");
-      setLoading(false); // Reset loading on error
       throw err;
     }
   };
@@ -154,14 +136,12 @@ export const useAuth = (): UseAuthResult => {
   const handleLogout = () => {
     clearStoredToken();
     setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
     setError(null);
-    setLoading(false); // Ensure loading is false after logout
+    queryClient.setQueryData(["me"], null);
   };
 
   return {
-    user,
+    user: safeUser,
     token,
     isAuthenticated,
     error,
