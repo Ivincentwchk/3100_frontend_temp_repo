@@ -81,21 +81,6 @@ export function ResetPassword() {
           </div>
 
           <div className="field">
-            <label htmlFor="reset-token" className="field-label">
-              Reset token
-            </label>
-            <input
-              id="reset-token"
-              type="text"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              className="input"
-              required
-            />
-            <p className="helper-text">This is included in the link we emailed to you.</p>
-          </div>
-
-          <div className="field">
             <label htmlFor="new-password" className="field-label">
               New password
             </label>
