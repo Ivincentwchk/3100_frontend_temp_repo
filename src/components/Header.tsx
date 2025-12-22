@@ -161,7 +161,7 @@ export function Header({ onLogoClick, user, onProfileClick, onLogout, activePage
                       cursor: "pointer",
                     }}
                   >
-                    View profile
+                    Profile
                   </button>
                   <button
                     type="button"

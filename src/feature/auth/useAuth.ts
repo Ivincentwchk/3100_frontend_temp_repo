@@ -125,7 +125,7 @@ export const useAuth = (): UseAuthResult => {
       }
 
       setToken(data.access);
-      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.setQueryData(["me"], data.user);
       return data;
     } catch (err) {
       setError("Invalid username or password");

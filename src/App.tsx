@@ -10,6 +10,7 @@ import { EditProfileModal } from "./components/EditProfileModal";
 import { ResetPassword } from "./components/pages/ResetPassword";
 import { SubjectsPage } from "./components/pages/POC-Page/SubjectsPage";
 import { AchievementsPage } from "./components/pages/AchievementsPage";
+import { ProfilePage } from "./components/pages/ProfilePage";
 import { GridBackground } from "./components/GridBackground";
 import type { AuthUser } from "./feature/auth/api";
 import { useEffect, useState, type CSSProperties } from "react";
@@ -44,12 +45,19 @@ export default function App() {
   const { user, isAuthenticated, loading, handleLogout, handleLogin, error, refreshUser } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("start");
   const [activePage, setActivePage] = useState<NavPage>("home");
-  const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements" | "user_info">("home");
+  const [dashboardView, setDashboardView] = useState<"home" | "subjects" | "achievements" | "profile" | "account_info">("home");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [autoSelectSubjectId, setAutoSelectSubjectId] = useState<number | null>(null);
   const isResetRoute = typeof window !== "undefined" && window.location.pathname.includes("reset-password");
   const [certificateData, setCertificateData] = useState<CertificateMetadata | null>(null);
   const [isCertViewerOpen, setIsCertViewerOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (currentPage !== "start") {
+      setCurrentPage("start");
+    }
+  }, [isAuthenticated, currentPage]);
 
   const [firstLogin, setFirstLogin] = useState(false);
 
@@ -162,7 +170,7 @@ export default function App() {
     } else if (page === "explore") {
       setDashboardView("subjects");
     } else if (page === "profile") {
-      setDashboardView("user_info");
+      setDashboardView("profile");
     } else if (page === "export") {
       setCurrentPage("start");
     }
@@ -186,6 +194,14 @@ export default function App() {
   const handleLogoutAndReturnHome = () => {
     handleLogout();
     setCurrentPage("start");
+  };
+
+  const handleLoginAndEnterApp = async (user_name: string, password: string, rememberMe?: boolean) => {
+    const res = await handleLogin(user_name, password, rememberMe);
+    setCurrentPage("start");
+    setActivePage("home");
+    setDashboardView("home");
+    return res;
   };
 
   const handleContinueRecentCourse = (subject: NonNullable<AuthUser["recent_bookmarked_subjects"]>[number]) => {
@@ -363,6 +379,19 @@ export default function App() {
               setDashboardView("home");
             }}
           />
+        ) : dashboardView === "profile" ? (
+          <ProfilePage
+            user={user}
+            onOpenAccountInfo={() => setDashboardView("account_info")}
+          />
+        ) : dashboardView === "account_info" ? (
+          <Dashboard
+            user={user}
+            onLogout={handleLogoutAndReturnHome}
+            onOpenSubjects={() => setDashboardView("subjects")}
+            onEditProfile={() => setIsEditProfileOpen(true)}
+            onOpenAchievements={() => setDashboardView("achievements")}
+          />
         ) : (
           <Dashboard
             user={user}
@@ -389,7 +418,7 @@ export default function App() {
           />
         )}
         {currentPage === "login" && (
-          <Login onSignUp={navigateToRegister} handleLogin={handleLogin} authError={error} />
+          <Login onSignUp={navigateToRegister} handleLogin={handleLoginAndEnterApp} authError={error} />
         )}
         {currentPage === "register" && (
           <Register onLogin={navigateToLogin} />

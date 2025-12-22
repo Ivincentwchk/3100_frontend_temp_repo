@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import "./SubjectsPage.css";
 import "./POC.css";
-import chickenImg from "../../../assets/chicken.png";
 
 import {
   getCompletedCourseScores,
@@ -265,8 +264,8 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
         {onBack && (
           <button
             type="button"
-            aria-label="Back"
-            title="Back"
+            aria-label="Back to home"
+            title="Back to home"
             className="btn btn-ghost poc-explore-back-button"
             onClick={backToDashboard}
           >
@@ -295,8 +294,8 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
       <>
         <button
           type="button"
-          aria-label="Back"
-          title="Back"
+          aria-label="Back to subjects"
+          title="Back to subjects"
           className="btn btn-ghost poc-explore-back-button"
           onClick={resetToSubjects}
         >
@@ -595,7 +594,6 @@ export function SubjectsPage({ onBack, user, onBookmarked, autoSelectSubjectId, 
         <div className={`poc-explore-main-wrapper ${isFullscreenMode ? "is-fullscreen-mode" : ""}`}>
           <div className={`poc-explore-main ${isFullscreenMode ? "is-fullscreen-mode" : ""}`}>{renderMain()}</div>
         </div>
-        <img src={chickenImg} alt="" aria-hidden="true" className="poc-explore-chicken" />
       </div>
     </div>
   );
