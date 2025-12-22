@@ -132,3 +132,11 @@ export const removeBookmarkedSubject = async (subjectId: number) => {
   const response = await apiClient.delete<{ detail: string }>(`/me/bookmarked-subject/${subjectId}/`);
   return response.data;
 };
+
+export const changeMyPassword = async (currentPassword: string, newPassword: string) => {
+  const response = await apiClient.post<{ detail: string }>("/me/change-password/", {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  return response.data;
+};
