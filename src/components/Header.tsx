@@ -1,5 +1,7 @@
 import logoImg from "figma:asset/685e1c874d33b97ec46986ea2b9b2bf321a7a1d7.png";
 
+import { useEffect, useRef, useState } from "react";
+
 import type { AuthUser } from "../feature/auth/api";
 import { ProfileAvatar } from "./ProfileAvatar";
 
@@ -22,6 +24,19 @@ const navItems: { id: NavPage; label: string }[] = [
 
 export function Header({ onLogoClick, user, onProfileClick, activePage = "home", onNavigate }: HeaderProps) {
   const isLoggedIn = Boolean(user);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [menuOpen]);
 
   // Guest header (with logo only)
   if (!isLoggedIn) {
@@ -104,7 +119,74 @@ export function Header({ onLogoClick, user, onProfileClick, activePage = "home",
           }}>
             {user?.user_name || "User"}
           </span>
-          {user && <ProfileAvatar user={user} size={40} variant="header" onClick={onProfileClick} />}
+          {user && (
+            <div ref={menuRef} style={{ position: "relative" }}>
+              <ProfileAvatar
+                user={user}
+                size={40}
+                variant="header"
+                onClick={() => setMenuOpen((prev) => !prev)}
+              />
+              {menuOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "calc(100% + 8px)",
+                    background: "#1c1c1c",
+                    borderRadius: 12,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "0 20px 45px rgba(0,0,0,0.45)",
+                    minWidth: 200,
+                    padding: "0.25rem 0",
+                    zIndex: 9999,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onProfileClick?.();
+                    }}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "0.5rem 1rem",
+                      background: "none",
+                      border: "none",
+                      color: "#ffffff",
+                      fontFamily: "'Poppins', sans-serif",
+                      fontSize: "0.95rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    View profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onNavigate?.("home");
+                      onProfileClick?.(); // fallback to existing handler if it logs out
+                    }}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "0.5rem 1rem",
+                      background: "none",
+                      border: "none",
+                      color: "#f8b4b4",
+                      fontFamily: "'Poppins', sans-serif",
+                      fontSize: "0.95rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>
