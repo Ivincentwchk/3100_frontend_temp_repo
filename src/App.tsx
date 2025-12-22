@@ -14,7 +14,7 @@ import { GridBackground } from "./components/GridBackground";
 import type { AuthUser } from "./feature/auth/api";
 import { useEffect, useState, type CSSProperties } from "react";
 import Ranking from "./components/pages/POC-Page/Ranking";
-import { ExportPage } from "./components/pages/ExportPage";
+import { ExportGatePage } from "./components/pages/ExportGatePage";
 import Cert from "./components/pages/Cert";
 import type { CertificateMetadata } from "./feature/cert/types";
 
@@ -313,6 +313,7 @@ export default function App() {
           onLogoClick={handleLogoClick}
           user={user}
           onProfileClick={() => handleNavigate("profile")}
+          onLogout={handleLogoutAndReturnHome}
           activePage={activePage}
           onNavigate={handleNavigate}
         />
@@ -328,7 +329,7 @@ export default function App() {
         {activePage === "ranking" ? (
           <Ranking />
         ) : activePage === "export" ? (
-          <ExportPage
+          <ExportGatePage
             user={user}
             refreshUser={refreshUser}
             onNavigateToCert={() => setIsCertViewerOpen(true)}

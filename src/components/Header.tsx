@@ -11,6 +11,7 @@ interface HeaderProps {
   onLogoClick?: () => void;
   user?: AuthUser | null;
   onProfileClick?: () => void;
+  onLogout?: () => void;
   activePage?: NavPage;
   onNavigate?: (page: NavPage) => void;
 }
@@ -22,7 +23,7 @@ const navItems: { id: NavPage; label: string }[] = [
   { id: "export", label: "EXPORT" },
 ];
 
-export function Header({ onLogoClick, user, onProfileClick, activePage = "home", onNavigate }: HeaderProps) {
+export function Header({ onLogoClick, user, onProfileClick, onLogout, activePage = "home", onNavigate }: HeaderProps) {
   const isLoggedIn = Boolean(user);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -166,8 +167,7 @@ export function Header({ onLogoClick, user, onProfileClick, activePage = "home",
                     type="button"
                     onClick={() => {
                       setMenuOpen(false);
-                      onNavigate?.("home");
-                      onProfileClick?.(); // fallback to existing handler if it logs out
+                      onLogout?.();
                     }}
                     style={{
                       width: "100%",
